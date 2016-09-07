@@ -237,21 +237,20 @@ module MonCat where
  lemaCatMonoid1 = record { preserves-unit = refl ; preserves-mult = refl }
 
 
- -- lemaCatMonoid2 : {X Y Z : Monoid} → catMonoid₁ Y Z → catMonoid₁ X Y → catMonoid₁ X Z
- -- lemaCatMonoid2 {X} {Y} {Z} (morp₁ , is-homo₁) (morp₂ , is-homo₂) = (morp₁ ∘ morp₂) ,
- --                            ((proof {!!} ≅⟨ {!!} ⟩ {!!} ≅⟨ {!!} ⟩ {!!} ∎) , {!!})
-
-
- -- lemaCatMonoid2 : {X Y Z : Monoid} → catMonoid₁ Y Z → catMonoid₁ X Y → catMonoid₁ X Z
- -- lemaCatMonoid2 {X} {Y} {Z} (morp₁ , is-homo₁) (morp₂ , is-homo₂) = (morp₁ ∘ morp₂) ,
- --                            ((proof (morp₁ ∘ morp₂) (ε X) ≅⟨ cong (λ x → morp₁ x) (Is-Monoid-Homo.preserves-unit is-homo₂) ⟩ morp₁ (ε Y) ≅⟨ Is-Monoid-Homo.preserves-unit is-homo₁ ⟩ ε Z ∎) , {!!})
-
-
-
- lemaCatMonoid2 : {X Y Z : Monoid} → catMonoid₁ Y Z → catMonoid₁ X Y → catMonoid₁ X Z
- lemaCatMonoid2 {X} {Y} {Z} (morp₁ , is-homo₁) (morp₂ , is-homo₂) = (morp₁ ∘ morp₂) ,
-                            ((proof (morp₁ ∘ morp₂) (ε X) ≅⟨ cong (λ x → morp₁ x) (Is-Monoid-Homo.preserves-unit is-homo₂) ⟩ morp₁ (ε Y) ≅⟨ Is-Monoid-Homo.preserves-unit is-homo₁ ⟩ ε Z ∎) ,
-                            (λ {x} {y} → proof (morp₁ ∘ morp₂) (_∙₁_ x y) ≅⟨ cong (λ x₁ → morp₁ x₁) (Is-Monoid-Homo.preserves-mult is-homo₂) ⟩ morp₁ (_∙₂_ (morp₂ x) (morp₂ y)) ≅⟨ Is-Monoid-Homo.preserves-mult is-homo₁ ⟩ _∙₃_ ((morp₁ ∘ morp₂) x) ((morp₁ ∘ morp₂) y) ∎))
+ compCatMonoid : {X Y Z : Monoid} → catMonoid₁ Y Z → catMonoid₁ X Y → catMonoid₁ X Z
+ compCatMonoid {X} {Y} {Z} (morp₁ , is-homo₁) (morp₂ , is-homo₂) = (morp₁ ∘ morp₂) ,
+                            ((proof 
+                              (morp₁ ∘ morp₂) (ε X) 
+                              ≅⟨ cong (λ x → morp₁ x) (Is-Monoid-Homo.preserves-unit is-homo₂) ⟩ 
+                               morp₁ (ε Y) 
+                              ≅⟨ Is-Monoid-Homo.preserves-unit is-homo₁ ⟩ 
+                              ε Z ∎) ,
+                            (λ {x} {y} → proof 
+                             (morp₁ ∘ morp₂) (x ∙₁ y) 
+                            ≅⟨ cong (λ x₁ → morp₁ x₁) (Is-Monoid-Homo.preserves-mult is-homo₂) ⟩ 
+                             morp₁ (morp₂ x ∙₂ morp₂ y) 
+                            ≅⟨ Is-Monoid-Homo.preserves-mult is-homo₁ ⟩ 
+                            _∙₃_ ((morp₁ ∘ morp₂) x) ((morp₁ ∘ morp₂) y) ∎))
                             where open Monoid X renaming (ε to ε₁ ;  _∙_ to _∙₁_)
                                   open Monoid Y renaming (ε to ε₂ ;  _∙_ to _∙₂_)
                                   open Monoid Z renaming (ε to ε₂ ;  _∙_ to _∙₃_)
@@ -263,19 +262,27 @@ module MonCat where
 -- ?
 -- ∎
 
+ open catMonoid₁
 
+ lemaCatMonid-eq : {M N : Monoid} {f : Carrier M → Carrier N} → 
+                 (a b : Is-Monoid-Homo {M} {N} f) → a ≅ b
+ lemaCatMonid-eq a b = let open Is-Monoid-Homo in
+                       cong₂ (Is-Monoid-Homo._,_) (ir (preserves-unit a) (preserves-unit b)) (i2ir (preserves-mult a) (preserves-mult b))
+
+
+ catMonoid-eq : {X Y : Monoid} {f g : catMonoid₁ X Y } → morp f ≅ morp g → f ≅ g
+ catMonoid-eq {f = f , f-is-homo} {.f , g-is-homo} refl = cong (λ x → f , x) (lemaCatMonid-eq f-is-homo g-is-homo)
 
  catMonoid : Cat
  catMonoid = record
                     { Obj = Monoid
                     ; Hom = catMonoid₁
                     ; iden = id , lemaCatMonoid1
-                    ; _∙_ = lemaCatMonoid2
-                    ; idl = {!!}
-                    ; idr = {!!}
-                    ; ass = {!!}
+                    ; _∙_ = compCatMonoid
+                    ; idl = catMonoid-eq refl
+                    ; idr = catMonoid-eq refl
+                    ; ass = catMonoid-eq refl
                     }
-
 
 --------------------------------------------------
 {- Ejercicio: Dada un categoría C, definir la siguiente categoría:
@@ -285,8 +292,37 @@ module MonCat where
                     f' ∙ g₁ ≅ g₂ ∙ f
 -}
 
+module CMorphs (C : Cat) where
 
+ open Cat C
 
+ open import Records hiding (Iso)
+
+ record catMorphs₀ : Set₁ where
+  constructor catObj
+  field
+   base₁ : Obj
+   base₂ : Obj
+   obj : Hom base₁ base₂
+
+ record catMorphs₁ (X Y : catMorphs₀) : Set where
+  constructor catMorp
+  open catMorphs₀
+  field
+   morp₁ : Hom (base₁ X) (base₁ Y) 
+   morp₂ : Hom (base₂ X) (base₂ Y)
+   prop :  morp₂ ∙ (obj X) ≅ (obj Y) ∙ morp₁
+
+ catMorphs : Cat
+ catMorphs = record
+             { Obj = catMorphs₀
+               ; Hom = λ x y → catMorphs₁ x y 
+               ; iden = {!!}
+               ; _∙_ = {!!}
+               ; idl = {!!}
+               ; idr = {!!}
+               ; ass = {!!}
+              }
 
 
 
