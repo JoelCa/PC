@@ -291,7 +291,7 @@ module CMorphs (C : Cat) where
 
  open Cat C
 
- open import Records hiding (Iso)
+ --open import Records hiding (Iso)
 
  record catMorphs₀ : Set₁ where
   constructor catObj
@@ -338,11 +338,6 @@ module CMorphs (C : Cat) where
 
  open catMorphs₀
  open catMorphs₁
-
- ir2 : ∀ {ℓ} {A B C D : Set ℓ} {x : A} {y : B} {z : C} {w : D} →
-   (x ≅ z) → (y ≅ w) → (p : x ≅ y) → (q : z ≅ w) → p ≅ q
- ir2 refl refl refl refl = refl
-
 
  catMorphs-eq : {X Y : catMorphs₀} {f g : catMorphs₁ X Y} → morp₁ f ≅ morp₁ g →
    morp₂ f ≅ morp₂ g → f ≅ g
@@ -396,12 +391,28 @@ Ayuda : puede ser útil usar cong-app
 Biyectiva : {X Y : Set}(f : X → Y) → Set
 Biyectiva {X} {Y} f = (y : Y) → Σ X (λ x → (f x ≅ y) × (∀ x' → f x' ≅ y → x ≅ x')) 
 
+isoSets→ : {X Y : Set} {f : X → Y} → Iso {Sets} X Y f → Biyectiva f
+isoSets→ {f = f} (iso inv l₁ l₂) y = (inv y) , ((cong-app l₁ y) , (λ x' x →
+                                     proof inv y
+                                     ≅⟨ cong (λ w → inv w) (sym x) ⟩
+                                     inv (f x')
+                                     ≅⟨ cong-app l₂ x' ⟩
+                                     x' ∎))
 
+-- Se puede probar?
+-- isoSets← : {X Y : Set} {f : X → Y} → Biyectiva f → Iso {Sets} X Y f
+-- isoSets← {f = f} x = {!!}
 
 --------------------------------------------------
 {- Ejercicio:
  Probar que un isormofismo en (C : Cat) es un isomorfismo en (C Op).
 -}
+
+isoCDual→ : {C : Cat} {A B : Obj C} {f : Hom C A B} → Iso {C} A B f → Iso {C Op} B A f
+isoCDual→ (iso inv l₁ l₂) = iso inv l₂ l₁
+
+isoCDual← : {C : Cat} {A B : Obj C} {f : Hom C A B} → Iso {C Op} B A f → Iso {C} A B f
+isoCDual← (iso inv l₁ l₂) = iso inv l₂ l₁
 
 --------------------------------------------------
 {- Ejercicio EXTRA:
@@ -412,6 +423,51 @@ Biyectiva {X} {Y} f = (y : Y) → Σ X (λ x → (f x ≅ y) × (∀ x' → f x'
      (A,a) → (B, b) es una función f : A → B, tal que f(a) = b 
 -}
 
+module CatPointedSets where
+
+ record CatPS₀ : Set₁ where
+   constructor obj
+   field conj : Set
+         elem : conj
+
+ record CatPS₁ (X Y : CatPS₀) : Set₀ where
+   constructor morp
+   open CatPS₀
+   field fun : conj X → conj Y
+         prop : fun (elem X) ≅ elem Y
+         
+
+ idenCatPS : {X : CatPS₀} → CatPS₁ X X
+ idenCatPS {obj c e} = morp id refl
+
+ compCatPS : {X Y Z : CatPS₀} → CatPS₁ Y Z → CatPS₁ X Y → CatPS₁ X Z
+ compCatPS {obj conj a} {obj conj₁ b} {obj conj₂ c} (morp g p₂) (morp f p₁) =
+   morp (g ∘ f) (
+     proof (g ∘ f) a
+     ≅⟨ refl ⟩
+     g (f a)
+     ≅⟨ cong (λ x → g x) p₁ ⟩
+     g b
+     ≅⟨ p₂ ⟩
+     c ∎)
+
+ open CatPS₁
+ 
+ compCat-eq : {X Y : CatPS₀} {f g : CatPS₁ X Y} → fun f ≅ fun g → f ≅ g
+ compCat-eq {obj conj a} {obj conj₁ b} {morp f p₁} {morp g p₂} x =
+   cong₂ morp x (ir2 (cong-app x a) refl p₁ p₂)
+
+ CatPS : Cat
+ CatPS = record
+           { Obj = CatPS₀
+           ; Hom = CatPS₁
+           ; iden = idenCatPS
+           ; _∙_ = compCatPS
+           ; idl = compCat-eq refl
+           ; idr = compCat-eq refl
+           ; ass = compCat-eq refl
+           }
+
 --------------------------------------------------
 
 {- Ejercicio EXTRA:
@@ -419,5 +475,82 @@ Biyectiva {X} {Y} f = (y : Y) → Σ X (λ x → (f x ≅ y) × (∀ x' → f x'
   - objetos son conjuntos finitos (y por lo tanto isomorfos a Fin n para algún n)
   - morfismos son isomorfismos.  
 -}
+
+
+module CatFin where
+
+  record catFin₀ : Set₁ where
+    constructor obj
+    field size : ℕ
+--          conj : Fin size
+
+  record catFin₁ (X Y : catFin₀) : Set where
+    constructor morp
+    open catFin₀
+    field fun : Fin (size X) → Fin (size Y)
+          prop : Iso {Sets} (Fin (size X)) (Fin (size Y)) fun
+
+
+  idenCatFin : {X : catFin₀} → catFin₁ X X
+  idenCatFin {obj n} = morp id (iso id refl refl)
+
+  compCatFin : {X Y Z : catFin₀} → catFin₁ Y Z → catFin₁ X Y → catFin₁ X Z
+  compCatFin {obj n} {obj n₁} {obj n₂} (morp g (iso g⁻¹ lg₁ lg₂)) (morp f (iso f⁻¹ lf₁ lf₂)) =
+    morp (g ∘ f) (iso (f⁻¹ ∘ g⁻¹)
+      (proof (g ∘ f) ∘ (f⁻¹ ∘ g⁻¹)
+        ≅⟨ ass Sets {f = g} {g = f} {h = f⁻¹ ∘ g⁻¹}⟩
+        g ∘ (f ∘ f⁻¹ ∘ g⁻¹)
+        ≅⟨ cong (λ x → g ∘ x) (sym (ass Sets {f = f} {g = f⁻¹} {h = g⁻¹})) ⟩
+        g ∘ (f ∘ f⁻¹) ∘ g⁻¹
+        ≅⟨ cong (λ x → g ∘ x ∘ g⁻¹) lf₁ ⟩
+        g ∘ id ∘ g⁻¹
+        ≅⟨ refl ⟩
+        g ∘ g⁻¹
+        ≅⟨ lg₁ ⟩
+        id ∎)
+       (proof
+          (f⁻¹ ∘ g⁻¹) ∘ (g ∘ f)
+          ≅⟨ ass Sets {f = f⁻¹} {g = g⁻¹} {h = g ∘ f} ⟩
+          f⁻¹ ∘ (g⁻¹ ∘ (g ∘ f))
+          ≅⟨ cong (λ x → f⁻¹ ∘ x) (sym (ass Sets {f = g⁻¹} {g = g} {h = f})) ⟩
+          f⁻¹ ∘ ((g⁻¹ ∘ g) ∘ f)
+          ≅⟨ cong (λ x → f⁻¹ ∘ x ∘ f) lg₂ ⟩
+          f⁻¹ ∘ id ∘ f
+          ≅⟨ refl ⟩
+          f⁻¹ ∘ f
+          ≅⟨ lf₂ ⟩
+          id ∎))
+
+
+  open catFin₁
+  open Iso
+
+  lemaCatFin : {n m : ℕ} {fun : Fin n → Fin m} → (f g : Iso {Sets} (Fin n) (Fin m) fun) → f ≅ g
+  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) = cong₃ iso {!!} {!!} {!!}
+  
+
+  catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
+  catFin-eq (morp f prop) (morp g prop₁) x = cong₂ morp x {!!}
+  
+          
+
+  catFin : Cat
+  catFin = record
+             { Obj = catFin₀
+             ; Hom = catFin₁
+             ; iden = idenCatFin
+             ; _∙_ = compCatFin
+             ; idl = {!!}
+             ; idr = {!!}
+             ; ass = {!!}
+             }
+
+
+
+
+
+
+
+
 
 --------------------------------------------------
