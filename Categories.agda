@@ -14,7 +14,7 @@ open import Library
 -}
 
 record Cat : Set₂ where
-  infix 7 _∙_
+  infix 10 _∙_
   field Obj  : Set₁
         Hom  : Obj → Obj → Set
         iden : ∀{X} → Hom X X
@@ -241,33 +241,28 @@ module MonCat where
  compCatMonoid {X} {Y} {Z} (morp₁ , is-homo₁) (morp₂ , is-homo₂) = (morp₁ ∘ morp₂) ,
                             ((proof 
                               (morp₁ ∘ morp₂) (ε X) 
-                              ≅⟨ cong (λ x → morp₁ x) (Is-Monoid-Homo.preserves-unit is-homo₂) ⟩ 
-                               morp₁ (ε Y) 
-                              ≅⟨ Is-Monoid-Homo.preserves-unit is-homo₁ ⟩ 
+                              ≅⟨ cong (λ x → morp₁ x) (preserves-unit is-homo₂) ⟩ 
+                              morp₁ (ε Y) 
+                              ≅⟨ preserves-unit is-homo₁ ⟩ 
                               ε Z ∎) ,
                             (λ {x} {y} → proof 
                              (morp₁ ∘ morp₂) (x ∙₁ y) 
-                            ≅⟨ cong (λ x₁ → morp₁ x₁) (Is-Monoid-Homo.preserves-mult is-homo₂) ⟩ 
+                             ≅⟨ cong (λ x₁ → morp₁ x₁) (preserves-mult is-homo₂) ⟩ 
                              morp₁ (morp₂ x ∙₂ morp₂ y) 
-                            ≅⟨ Is-Monoid-Homo.preserves-mult is-homo₁ ⟩ 
-                            _∙₃_ ((morp₁ ∘ morp₂) x) ((morp₁ ∘ morp₂) y) ∎))
+                             ≅⟨ preserves-mult is-homo₁ ⟩ 
+                             ((morp₁ ∘ morp₂) x) ∙₃ ((morp₁ ∘ morp₂) y) ∎))
                             where open Monoid X renaming (ε to ε₁ ;  _∙_ to _∙₁_)
                                   open Monoid Y renaming (ε to ε₂ ;  _∙_ to _∙₂_)
                                   open Monoid Z renaming (ε to ε₂ ;  _∙_ to _∙₃_)
-
--- proof ?
--- ≅⟨ ? ⟩
---  ?
--- ≅⟨ ? ⟩
--- ?
--- ∎
+                                  open Is-Monoid-Homo
 
  open catMonoid₁
 
  lemaCatMonid-eq : {M N : Monoid} {f : Carrier M → Carrier N} → 
                  (a b : Is-Monoid-Homo {M} {N} f) → a ≅ b
  lemaCatMonid-eq a b = let open Is-Monoid-Homo in
-                       cong₂ (Is-Monoid-Homo._,_) (ir (preserves-unit a) (preserves-unit b)) (i2ir (preserves-mult a) (preserves-mult b))
+                       cong₂ (Is-Monoid-Homo._,_) (ir (preserves-unit a) (preserves-unit b))
+                         (i2ir (preserves-mult a) (preserves-mult b))
 
 
  catMonoid-eq : {X Y : Monoid} {f g : catMonoid₁ X Y } → morp f ≅ morp g → f ≅ g
@@ -313,21 +308,70 @@ module CMorphs (C : Cat) where
    morp₂ : Hom (base₂ X) (base₂ Y)
    prop :  morp₂ ∙ (obj X) ≅ (obj Y) ∙ morp₁
 
+ idenCatMorphs : (X : catMorphs₀) → catMorphs₁ X X
+ idenCatMorphs (catObj b₁ b₂ o) = catMorp iden iden
+                                  (proof
+                                   iden ∙ o
+                                   ≅⟨ idl ⟩
+                                   o
+                                   ≅⟨ sym idr ⟩
+                                   o ∙ iden ∎)
+
+
+ compCatMorphs : {X Y Z : catMorphs₀} → catMorphs₁ Y Z → catMorphs₁ X Y → catMorphs₁ X Z
+ compCatMorphs {catObj b₁ b₂ obj} {catObj b₃ b₄ obj₁} {catObj b₅ b₆ obj₂}
+   (catMorp g₃ g₄ prop₂) (catMorp g₁ g₂ prop₁) =
+     catMorp (g₃ ∙ g₁) (g₄ ∙ g₂)
+       (proof
+       (g₄ ∙ g₂) ∙ obj
+       ≅⟨ ass ⟩
+       g₄ ∙ (g₂ ∙ obj)
+       ≅⟨ cong (λ x → g₄ ∙ x) prop₁ ⟩
+       g₄ ∙ (obj₁ ∙ g₁)
+       ≅⟨ sym ass ⟩
+       (g₄ ∙ obj₁) ∙ g₁
+       ≅⟨ cong (λ x → x ∙ g₁) prop₂ ⟩
+       (obj₂ ∙ g₃) ∙ g₁
+       ≅⟨ ass ⟩
+       obj₂ ∙ (g₃ ∙ g₁) ∎ )
+
+
+ open catMorphs₀
+ open catMorphs₁
+
+ ir2 : ∀ {ℓ} {A B C D : Set ℓ} {x : A} {y : B} {z : C} {w : D} →
+   (x ≅ z) → (y ≅ w) → (p : x ≅ y) → (q : z ≅ w) → p ≅ q
+ ir2 refl refl refl refl = refl
+
+
+ catMorphs-eq : {X Y : catMorphs₀} {f g : catMorphs₁ X Y} → morp₁ f ≅ morp₁ g →
+   morp₂ f ≅ morp₂ g → f ≅ g
+ catMorphs-eq {catObj b₁ b₂ obj} {catObj b₃ b₄ obj₁} {catMorp m₁ m₂ prop} {catMorp m₃ m₄ prop₁}
+   x y = cong₃ catMorp x y (ir2
+     ( (proof
+        m₂ ∙ obj
+        ≅⟨ cong (λ w → w ∙ obj) y ⟩
+        m₄ ∙ obj ∎ )
+     )
+     (proof
+      obj₁ ∙ m₁
+      ≅⟨ cong (λ w → obj₁ ∙ w) x ⟩
+      obj₁ ∙ m₃ ∎)
+     prop
+     prop₁)
+
+
  catMorphs : Cat
  catMorphs = record
              { Obj = catMorphs₀
                ; Hom = λ x y → catMorphs₁ x y 
-               ; iden = {!!}
-               ; _∙_ = {!!}
-               ; idl = {!!}
-               ; idr = {!!}
-               ; ass = {!!}
+               ; iden = λ {x} → idenCatMorphs x
+               ; _∙_ = compCatMorphs
+               ; idl = catMorphs-eq idl idl
+               ; idr = catMorphs-eq idr idr
+               ; ass = catMorphs-eq ass ass
               }
-
-
-
-
-
+              
 --------------------------------------------------
 {- Generalizamos la noción de isomorfismo de la clase pasada a cualquier categoría -}
 
