@@ -399,9 +399,25 @@ isoSets→ {f = f} (iso inv l₁ l₂) y = (inv y) , ((cong-app l₁ y) , (λ x'
                                      ≅⟨ cong-app l₂ x' ⟩
                                      x' ∎))
 
--- Se puede probar?
--- isoSets← : {X Y : Set} {f : X → Y} → Biyectiva f → Iso {Sets} X Y f
--- isoSets← {f = f} x = {!!}
+inversa : {X Y : Set} {f : X → Y} → Biyectiva f → Y → X
+inversa {f = f} fb y with (fb y)
+... | x , l = x
+
+isoSets← : {X Y : Set} {f : X → Y} → Biyectiva f → Iso {Sets} X Y f
+isoSets← {f = f} fb = iso (inversa {f = f} fb) (ext (λ y →
+  let x , l₁ , _ = fb y
+  in
+  (proof
+  (_∙_ Sets f (inversa fb)) y
+  ≅⟨ l₁ ⟩
+  y ∎)))
+  (ext (λ x₁ →
+    let x₂ , _ , l₂ = fb (f x₁)
+    in
+    proof
+    _∙_ Sets (inversa fb) f x₁ 
+    ≅⟨ l₂ x₁ refl ⟩
+    x₁ ∎))
 
 --------------------------------------------------
 {- Ejercicio:
@@ -483,6 +499,9 @@ module CatFin where
     constructor obj
     field size : ℕ
 --          conj : Fin size
+
+-- record Iso {C : Cat}(A B : Obj C)(fun : Hom C A B) : Set where
+
 
   record catFin₁ (X Y : catFin₀) : Set where
     constructor morp
