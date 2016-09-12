@@ -391,6 +391,20 @@ Ayuda : puede ser útil usar cong-app
 Biyectiva : {X Y : Set}(f : X → Y) → Set
 Biyectiva {X} {Y} f = (y : Y) → Σ X (λ x → (f x ≅ y) × (∀ x' → f x' ≅ y → x ≅ x')) 
 
+-- Agregado para hacer el último ejercicio
+Inyectiva : {X Y : Set} (f : X → Y) → Set
+Inyectiva {X} {Y} f = (x₁ : X) → (x₂ : X) → f x₁ ≅ f x₂ → x₁ ≅ x₂
+
+bi-is-iny : {X Y : Set} {f : X → Y} → Biyectiva f → Inyectiva f
+bi-is-iny {f = f} bi = λ x₁ x₂ p → let x₃ , _ , l = bi (f x₁)
+                                   in proof
+                                      x₁
+                                      ≅⟨ sym (l x₁ refl) ⟩
+                                      x₃
+                                      ≅⟨ l x₂ (sym p) ⟩
+                                      x₂  ∎
+
+
 isoSets→ : {X Y : Set} {f : X → Y} → Iso {Sets} X Y f → Biyectiva f
 isoSets→ {f = f} (iso inv l₁ l₂) y = (inv y) , ((cong-app l₁ y) , (λ x' x →
                                      proof inv y
@@ -497,24 +511,24 @@ module CatFin where
 
   record catFin₀ : Set₁ where
     constructor obj
-    field size : ℕ
---          conj : Fin size
-
--- record Iso {C : Cat}(A B : Obj C)(fun : Hom C A B) : Set where
+    field conj : Set
+          size : ℕ
+          funi : conj → (Fin size)
+          finite : Iso {Sets} conj (Fin size) funi
 
 
   record catFin₁ (X Y : catFin₀) : Set where
     constructor morp
     open catFin₀
-    field fun : Fin (size X) → Fin (size Y)
-          prop : Iso {Sets} (Fin (size X)) (Fin (size Y)) fun
+    field fun : conj X → conj Y
+          funIso : Iso {Sets} (conj X) (conj Y) fun
 
 
   idenCatFin : {X : catFin₀} → catFin₁ X X
-  idenCatFin {obj n} = morp id (iso id refl refl)
+  idenCatFin {obj conj n f finite} = morp id (iso id refl refl)
 
   compCatFin : {X Y Z : catFin₀} → catFin₁ Y Z → catFin₁ X Y → catFin₁ X Z
-  compCatFin {obj n} {obj n₁} {obj n₂} (morp g (iso g⁻¹ lg₁ lg₂)) (morp f (iso f⁻¹ lf₁ lf₂)) =
+  compCatFin (morp g (iso g⁻¹ lg₁ lg₂)) (morp f (iso f⁻¹ lf₁ lf₂)) = 
     morp (g ∘ f) (iso (f⁻¹ ∘ g⁻¹)
       (proof (g ∘ f) ∘ (f⁻¹ ∘ g⁻¹)
         ≅⟨ ass Sets {f = g} {g = f} {h = f⁻¹ ∘ g⁻¹}⟩
@@ -544,25 +558,46 @@ module CatFin where
   open catFin₁
   open Iso
 
-  lemaCatFin : {n m : ℕ} {fun : Fin n → Fin m} → (f g : Iso {Sets} (Fin n) (Fin m) fun) → f ≅ g
-  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) = cong₃ iso {!!} {!!} {!!}
+  lemaCatFin₀ : {X Y : Set} {fun : X → Y} → (p₁ p₂ : Iso {Sets} X Y fun) → inv p₁ ≅ inv p₂
+  lemaCatFin₀ {fun = fun} (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) = ext (λ y →
+    bi-is-iny {f = fun} (isoSets→ (iso f⁻¹ lf₁ lf₂)) (f⁻¹ y) (g⁻¹ y)
+      (proof fun (f⁻¹ y)
+      ≅⟨ cong-app lf₁ y ⟩
+      id y
+      ≅⟨ sym (cong-app lg₁ y) ⟩
+      fun (g⁻¹ y) ∎))
+
+  lemaCatFin : {X Y : Set} {fun : X → Y} → (p₁ p₂ : Iso {Sets} X Y fun) → p₁ ≅ p₂
+  lemaCatFin {fun = fun} (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) =
+    let inv = (lemaCatFin₀ {fun = fun} (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂))
+    in cong₃ iso
+    (inv)
+      (ir2 (proof fun ∘ f⁻¹
+            ≅⟨ cong (λ x → fun ∘ x) inv ⟩
+            fun ∘ g⁻¹ ∎) refl lf₁ lg₁)
+      (ir2 ((proof f⁻¹ ∘ fun
+            ≅⟨ cong (λ x → x ∘ fun) inv ⟩
+            g⁻¹ ∘ fun ∎)) refl lf₂ lg₂)
+
+
+  -- lemaCatFin : {n m : ℕ} {fun : Fin n → Fin m} → (f g : Iso {Sets} (Fin n) (Fin m) fun) → f ≅ g
+  -- lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) = cong₃ iso {!!} {!!} {!!}
   
 
   catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
   catFin-eq (morp f prop) (morp g prop₁) x = cong₂ morp x {!!}
-  
-          
+            
 
-  catFin : Cat
-  catFin = record
-             { Obj = catFin₀
-             ; Hom = catFin₁
-             ; iden = idenCatFin
-             ; _∙_ = compCatFin
-             ; idl = {!!}
-             ; idr = {!!}
-             ; ass = {!!}
-             }
+  -- catFin : Cat
+  -- catFin = record
+  --            { Obj = catFin₀
+  --            ; Hom = catFin₁
+  --            ; iden = idenCatFin
+  --            ; _∙_ = compCatFin
+  --            ; idl = {!!}
+  --            ; idr = {!!}
+  --            ; ass = {!!}
+  --            }
 
 
 
