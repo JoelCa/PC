@@ -312,48 +312,42 @@ prodIso : {A B C : Set} → Iso (A → B × C) ((A → B) × (A → C))
 prodIso {a} {b} {c} = record
                       { fun = λ x → (proj₁ ∘ x) , (proj₂ ∘ x)
                         ; inv = λ x y → (proj₁ x y) , (proj₂ x y)
-                        ; law1 = λ x → refl --cong₂ (λ x₁ x₂ → x₁ , x₂) refl refl
+                        ; law1 = λ x → refl
                         ; law2 = λ x → refl }
 
 
-{- Ejercicio: construir isomorfismos entre Vec A n × Vec B n y
-Vec (A × B) n para todos A, B habitantes de Set y n natural -}
+-- Ejercicio: construir isomorfismos entre Vec A n × Vec B n y
+-- Vec (A × B) n para todos A, B habitantes de Set y n natural
 
--- open import Data.Vec hiding (zip; unzip) --renaming (zip to zip₁; unzip to unzip₁)
+open import Data.Vec hiding (zip; unzip)
 
--- unzip : ∀ {a b n} {A : Set a} {B : Set b} →
---         Vec (A × B) n → Vec A n × Vec B n
--- unzip []              = [] , []
--- unzip ((x , y) ∷ xys) with unzip xys
--- unzip ((x , y) ∷ xys) | (a , b) = (x ∷ a) , (y ∷ b)
+unzip : ∀ {a b n} {A : Set a} {B : Set b} →
+        Vec (A × B) n → Vec A n × Vec B n
+unzip []              = [] , []
+unzip ((x , y) ∷ xys) with unzip xys
+unzip ((x , y) ∷ xys) | (a , b) = (x ∷ a) , (y ∷ b)
 
--- zipVec : ∀ {a b n} {A : Set a} {B : Set b} →
---         Vec A n × Vec B n → Vec (A × B) n
--- zipVec ([] , []) = []
--- zipVec (x ∷ xs , y ∷ ys) = (x , y) ∷ (zipVec (xs , ys)) 
-
-
--- lema1prodVecIso : {A B : Set} {n : ℕ} {v : Vec (A × B) n} → zipVec (unzip v) ≅ v
--- lema1prodVecIso {v = []} = refl
--- lema1prodVecIso {v = x ∷ v} = cong (λ x₁ → x ∷ x₁) (lema1prodVecIso {v = v})
-
--- lema2prodVecIso : {A B : Set} {n : ℕ} {x : Vec A n × Vec B n} → unzip (zipVec x) ≅ x
--- lema2prodVecIso {x = [] , []} = refl
--- lema2prodVecIso {x = x ∷ xs , y ∷ ys} = cong₂ (λ x₁ y₁ → x₁ , y₁) (cong (λ x₁ → x ∷ proj₁ x₁) (lema2prodVecIso {x = xs , ys})) (cong (λ x₁ → x ∷ proj₂ x₁) {!lema2prodVecIso {x = xs , ys}!}) --cong₂ (λ x₁ y₁ → {!!}) {!!} {!!}
--- -- lema2prodVecIso {x = x ∷ xs , y ∷ ys} = cong₂ (λ x₁ y₁ → x₁ , y₁)
--- --                                               (cong (λ z → x ∷ proj₁ z)
--- --                                                 (lema2prodVecIso {x = xs , ys}))
--- --                                               (cong (λ z → x ∷ proj₂ z)
--- --                                                 (lema2prodVecIso {x = xs , ys}))
+zipVec : ∀ {a b n} {A : Set a} {B : Set b} →
+        (Vec A n × Vec B n) → Vec (A × B) n
+zipVec ([] , []) = []
+zipVec ((x ∷ xs) , (y ∷ ys)) = (x , y) ∷ (zipVec (xs , ys)) 
 
 
--- -- lema1prodVecIso : {A B : Set} {n : ℕ} {v : Vec (A × B) n} → uncurry′ zip₁ (unzip v) ≅ v
--- -- lema1prodVecIso {v = []} = refl
--- -- lema1prodVecIso {v = x ∷ v} = {!!}
+lema1prodVecIso : {A B : Set} {n : ℕ} {v : Vec (A × B) n} → zipVec (unzip v) ≅ v
+lema1prodVecIso {v = []} = refl
+lema1prodVecIso {v = x ∷ v} = cong (λ x₁ → x ∷ x₁) (lema1prodVecIso {v = v})
 
--- prodVecIso : {A B : Set} {n : ℕ} → Iso (Vec A n × Vec B n) (Vec (A × B) n)
--- prodVecIso = record
---              { fun = zipVec
---                ; inv = unzip
---                ; law1 = λ x → lema1prodVecIso {v = x}
---                ; law2 = λ x → lema2prodVecIso {x = x} }
+lema2prodVecIso : {A B : Set} {n : ℕ} {x : Vec A n × Vec B n} → unzip (zipVec x) ≅ x
+lema2prodVecIso {x = [] , []} = refl
+lema2prodVecIso {x = (x ∷ xs) , (y ∷ ys)} = let p = lema2prodVecIso {x = xs , ys}
+                                            in cong₂ Σ._,_
+                                               (cong (λ z → x ∷ proj₁ z) p)
+                                               (cong (λ z → y ∷ proj₂ z) p)
+
+
+prodVecIso : {A B : Set} {n : ℕ} → Iso (Vec A n × Vec B n) (Vec (A × B) n)
+prodVecIso = record
+             { fun = zipVec
+               ; inv = unzip
+               ; law1 = λ x → lema1prodVecIso {v = x}
+               ; law2 = λ x → lema2prodVecIso {x = x} }

@@ -66,20 +66,48 @@ Producto =  functor (λ x → fst x × snd x) (λ f xy → (fst f (fst xy)) , (s
 -- Funtor Maybe
 open import Data.Maybe.Base renaming (map to mapMaybe)
 
+maybeId : ∀ {a} {A : Set a} → (m : Maybe A) → mapMaybe id m ≅  id m
+maybeId (just x) = refl
+maybeId nothing = refl
+
+maybeComp : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} {f : A → B} {g : B → C} →
+  (m : Maybe A) →   mapMaybe (g ∘ f) m ≅ ((mapMaybe g) ∘ (mapMaybe f)) m
+maybeComp (just x) = refl
+maybeComp nothing = refl
+
+
 MaybeF : Fun Sets Sets
 MaybeF = functor Maybe
                  mapMaybe
-                 {!!}
-                 {!!}
+                 (ext (λ m → maybeId m))
+                 (ext (λ m → maybeComp m))
 
 -- Funtor Lista 
 open import Data.List.Base renaming (map to mapList)
 
+listId : ∀ {a} {A : Set a} → (xs : List A) → mapList (id) xs ≅ id xs
+listId [] = refl
+listId (x ∷ xs) = proof id x ∷ mapList id xs
+                  ≅⟨ cong (λ x₁ → id x ∷ x₁) (listId xs) ⟩
+                  id x ∷ xs
+                  ≅⟨ refl ⟩
+                  id (x ∷ xs) ∎
+
+listComp : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} {f : A → B} {g : B → C} →
+  (xs : List A) →   mapList (g ∘ f) xs ≅ ((mapList g) ∘ (mapList f)) xs
+listComp [] = refl
+listComp {f = f} {g} (x ∷ xs) = proof (g ∘ f) x ∷ mapList (g ∘ f) xs
+                                ≅⟨ cong (λ x₁ → (g ∘ f) x ∷ x₁) (listComp xs) ⟩
+                                (g ∘ f) x ∷ (mapList g ∘ mapList f) xs
+                                ≅⟨ refl ⟩
+                                (mapList g ∘ mapList f) (x ∷ xs) ∎
+
+
 ListF : Fun Sets Sets
 ListF = functor List
                 mapList
-                {!!}
-                {!!}
+                (ext (λ xs → listId xs))
+                (ext (λ xs → listComp xs))
 
 --Bifuntor de árboles con diferente información en nodos y hojas
 data Tree (A B : Set) : Set where
@@ -87,10 +115,11 @@ data Tree (A B : Set) : Set where
      node : (lt : Tree A B) → B → (rt : Tree A B) → Tree A B
 
 mapTree : ∀{A A' B B'} → (A → A') → (B → B') → Tree A B → Tree A' B'
-mapTree = {!!}
+mapTree fl fn (leaf x) = leaf (fl x)
+mapTree fl fn (node t₁ x t₂) = node (mapTree fl fn t₁) (fn x) (mapTree fl fn t₂)
 
 TreeF : Fun (Sets ×C Sets) Sets
-TreeF = {!!}
+TreeF = functor (λ x → Tree (fst x) (snd x)) (λ fg t → mapTree (fst fg) (snd fg) t) {!!} {!!}
 
 --------------------------------------------------
 {- Hom functor : probar que el Hom de una categoría C
