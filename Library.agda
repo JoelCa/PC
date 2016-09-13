@@ -46,9 +46,6 @@ ir refl refl = refl
 ir2 : ∀ {ℓ} {A B C D : Set ℓ} {x : A} {y : B} {z : C} {w : D} →
       (x ≅ z) → (y ≅ w) → (p : x ≅ y) → (q : z ≅ w) → p ≅ q
 ir2 refl refl refl refl = refl
- 
-
-
 
 
 {- extensionalidad -}
@@ -74,5 +71,3 @@ i2ir : ∀ {a b} {I J : Set a}{A B : I → J → Set b}
                     (p q : ∀{i j} → x {i} {j} ≅ y {i} {j}) →
                     _≅_ {_} { {i : I} → {j : J} → _} p { {i : I} → {j : J} → _} q
 i2ir p q = iext (λ i → iext ( λ j →  ir ( (p {i} {j}) ) ( (q {i} {j}) )  ))
- 
-

@@ -59,19 +59,20 @@ C Op = let open Cat C in
          }
 
 --------------------------------------------------
---NO lo hacemos
--- {- Categoría Discreta
+-- NO lo hacemos
+{- Categoría Discreta
 
---    Una categoría discreta es una categoría en la que los únicos
--- morfismos son identidades. La composición y ecuaciones de coherencia
--- son triviales.
--- -}
+   Una categoría discreta es una categoría en la que los únicos
+morfismos son identidades. La composición y ecuaciones de coherencia
+son triviales.
+-}
 
--- Discrete :  Set → Cat
--- Discrete X = record
---                { Obj = Lift X
---                ; Hom = λ X Y → {!X ≅ Y!}
---                ; iden = {!!}
+
+-- Discrete : Set → Cat
+-- Discrete S = record
+--                { Obj = ?
+--                ; Hom = ?
+--                ; iden = ?
 --                ; _∙_ = {!!}
 --                ; idl = {!!}
 --                ; idr = {!!}
@@ -79,12 +80,20 @@ C Op = let open Cat C in
 --                }
 
 
--- {- A menudo nos queremos "olvidar" de los morfismos de una
--- categoría. Es decir, miramos a la categoría como una categoría
--- discreta. Esto se nota en lenguaje categórico como |C| -}
+{- A menudo nos queremos "olvidar" de los morfismos de una
+categoría. Es decir, miramos a la categoría como una categoría
+discreta. Esto se nota en lenguaje categórico como |C| -}
 
 -- ∣_∣ : Cat → Cat
--- ∣ C ∣ = {!!}
+-- ∣ C ∣ = record
+--           { Obj = {!!}
+--           ; Hom = {!!}
+--           ; iden = {!!}
+--           ; _∙_ = {!!}
+--           ; idl = {!!}
+--           ; idr = {!!}
+--           ; ass = {!!}
+--           }
 
 --------------------------------------------------
 {- Categoría Producto -}
@@ -580,14 +589,24 @@ module CatFin where
             g⁻¹ ∘ fun ∎)) refl lf₂ lg₂)
 
 
-  -- lemaCatFin : {n m : ℕ} {fun : Fin n → Fin m} → (f g : Iso {Sets} (Fin n) (Fin m) fun) → f ≅ g
-  -- lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) = cong₃ iso {!!} {!!} {!!}
-  
 
-  catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
-  catFin-eq (morp f prop) (morp g prop₁) x = cong₂ morp x {!!}
+  -- catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
+  -- catFin-eq {obj c₁ n₁ f₁ fin₁} {obj c₂ n₂ f₂ fin₂} (morp f (iso f⁻¹ lf₁ lf₂)) (morp g
+  --   (iso g⁻¹ lg₁ lg₂)) x = cong₂ morp x
+  --     (proof iso {fun = f} f⁻¹ lf₁ lf₂
+  --     ≅⟨ dicong x (ext (λ a → {!!})) {!!} ⟩
+  --     iso {fun = g} f⁻¹ lf₁ lf₂
+  --     ≅⟨ {!!} ⟩
+  --     {!!}
+  --     ≅⟨ {!!} ⟩
+  --     {!!}
+  --     ≅⟨ {!!} ⟩
+  --     {!!}
+  --     ≅⟨ {!!} ⟩
+  --     {!!} ∎)
+
+
             
-
   -- catFin : Cat
   -- catFin = record
   --            { Obj = catFin₀
@@ -598,13 +617,4 @@ module CatFin where
   --            ; idr = {!!}
   --            ; ass = {!!}
   --            }
-
-
-
-
-
-
-
-
-
 --------------------------------------------------
