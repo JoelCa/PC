@@ -576,35 +576,14 @@ module CatFin where
       ≅⟨ sym (cong-app lg₁ y) ⟩
       fun (g⁻¹ y) ∎))
 
-  lemaCatFin : {X Y : Set} {fun : X → Y} → (p₁ p₂ : Iso {Sets} X Y fun) → p₁ ≅ p₂
-  lemaCatFin {fun = fun} (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂) =
-    let inv = (lemaCatFin₀ {fun = fun} (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂))
-    in cong₃ iso
-    (inv)
-      (ir2 (proof fun ∘ f⁻¹
-            ≅⟨ cong (λ x → fun ∘ x) inv ⟩
-            fun ∘ g⁻¹ ∎) refl lf₁ lg₁)
-      (ir2 ((proof f⁻¹ ∘ fun
-            ≅⟨ cong (λ x → x ∘ fun) inv ⟩
-            g⁻¹ ∘ fun ∎)) refl lf₂ lg₂)
+  lemaCatFin : {X Y : Set} {fun : X → Y} → (p₁ p₂ : Iso {Sets} X Y fun) 
+            → p₁ ≅ p₂ 
+  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso invg lg₁ lg₂) with lemaCatFin₀ (iso f⁻¹ lf₁ lf₂) (iso invg lg₁ lg₂)
+  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso .f⁻¹ lg₁ lg₂) | refl = cong₂ (iso f⁻¹) (ir lf₁ lg₁) (ir lf₂ lg₂) 
 
 
-
-  -- catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
-  -- catFin-eq {obj c₁ n₁ f₁ fin₁} {obj c₂ n₂ f₂ fin₂} (morp f (iso f⁻¹ lf₁ lf₂)) (morp g
-  --   (iso g⁻¹ lg₁ lg₂)) x = cong₂ morp x
-  --     (proof iso {fun = f} f⁻¹ lf₁ lf₂
-  --     ≅⟨ dicong x (ext (λ a → {!!})) {!!} ⟩
-  --     iso {fun = g} f⁻¹ lf₁ lf₂
-  --     ≅⟨ {!!} ⟩
-  --     {!!}
-  --     ≅⟨ {!!} ⟩
-  --     {!!}
-  --     ≅⟨ {!!} ⟩
-  --     {!!}
-  --     ≅⟨ {!!} ⟩
-  --     {!!} ∎)
-
+  catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
+  catFin-eq (morp fun funIso) (morp .fun funIso₁) refl = cong (morp fun) (lemaCatFin funIso funIso₁)
 
             
   -- catFin : Cat
@@ -613,7 +592,7 @@ module CatFin where
   --            ; Hom = catFin₁
   --            ; iden = idenCatFin
   --            ; _∙_ = compCatFin
-  --            ; idl = {!!}
+  --            ; idl = {! !}
   --            ; idr = {!!}
   --            ; ass = {!!}
   --            }
