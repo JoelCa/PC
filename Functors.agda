@@ -152,35 +152,26 @@ TreeF = functor (λ x → Tree (fst x) (snd x)) (λ fg t → mapTree (fst fg) (s
   es un bifunctor Hom : (C Op) ×C C → Sets
   -}
 
---HomFId : {A B : Set} → (f : A → B) → 
-
- -- (λ { (f , g) h → (@5 ∙ g) ((@5 ∙ h) f) }) c (iden ((c Op) ×C c)) ≅
- --      iden Sets
-
 HomF : (C : Cat) → Fun ((C Op) ×C C) Sets
 HomF c = let _∙_ = Cat._∙_ c in 
-        functor (λ X → Hom c (fst X) (snd X) ) 
+        functor (λ { (x , y) → Hom c x y } ) 
                 (λ { ( f , g ) h → g ∙ (h ∙ f)   })
                 (ext (λ h → proof  
                             iden c ∙ (h ∙ iden c)
                             ≅⟨ cong ( λ x → iden c ∙ x) (idr c) ⟩
                             (iden c ∙ h)
                             ≅⟨ idl c ⟩ 
-                            h 
+                            h
                             ∎ ))
-                ( λ { {x} {y} {z} {f₁ , g₁} {f₂ , g₂} → ext 
+                ( λ { {f = f₁ , g₁} {f₂ , g₂} → ext 
                 (λ h →  proof 
                         (g₁ ∙ g₂) ∙ (h ∙ (f₂ ∙ f₁)) 
-                        ≅⟨ {!!} ⟩ 
-                        {!!} 
-                        ≅⟨ {!!} ⟩ 
-                        {!!} ≅⟨ {!!} ⟩ {!!} ∎)})
-
- -- (λ { (f , g) h₁ → (f₂ ∙ g) ((f₂ ∙ h₁) f) }) c
- --      ((((c Op) ×C c) ∙ (f₁ , g₁)) (f₂ , g₂)) h
- --      ≅
- --      (Sets ∙ (λ { (f , g) h₁ → (f₂ ∙ g) ((f₂ ∙ h₁) f) }) c (f₁ , g₁))
- --      ((λ { (f , g) h₁ → (f₂ ∙ g) ((f₂ ∙ h₁) f) }) c (f₂ , g₂)) h
+                        ≅⟨ ass c {f = g₁} {g₂} {h ∙ (f₂ ∙ f₁)} ⟩ 
+                        g₁ ∙ (g₂ ∙ (h ∙ (f₂ ∙ f₁))) 
+                        ≅⟨ cong (λ x₁ → g₁ ∙ (g₂ ∙ x₁)) (sym (ass c {f = h} {f₂} {f₁})) ⟩ 
+                        g₁ ∙ (g₂ ∙ ((h ∙ f₂) ∙ f₁))
+                        ≅⟨ cong (λ x₁ → g₁ ∙ x₁) (sym (ass c {f = g₂} {h ∙ f₂} {f₁})) ⟩
+                        g₁ ∙ ((g₂ ∙ (h ∙ f₂)) ∙ f₁) ∎)})
 
 --------------------------------------------------
 {- Composición de funtores -}
