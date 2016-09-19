@@ -350,19 +350,8 @@ module CMorphs (C : Cat) where
 
  catMorphs-eq : {X Y : catMorphs₀} {f g : catMorphs₁ X Y} → morp₁ f ≅ morp₁ g →
    morp₂ f ≅ morp₂ g → f ≅ g
- catMorphs-eq {catObj b₁ b₂ obj} {catObj b₃ b₄ obj₁} {catMorp m₁ m₂ prop} {catMorp m₃ m₄ prop₁}
-   x y = cong₃ catMorp x y (ir2
-     ( (proof
-        m₂ ∙ obj
-        ≅⟨ cong (λ w → w ∙ obj) y ⟩
-        m₄ ∙ obj ∎ )
-     )
-     (proof
-      obj₁ ∙ m₁
-      ≅⟨ cong (λ w → obj₁ ∙ w) x ⟩
-      obj₁ ∙ m₃ ∎)
-     prop
-     prop₁)
+ catMorphs-eq {catObj b₁ b₂ obj} {catObj b₃ b₄ obj₁} {catMorp m₁ m₂ prop} {catMorp .m₁ .m₂ prop₁}
+   refl refl = cong (catMorp m₁ m₂) (ir prop prop₁)
 
 
  catMorphs : Cat
@@ -493,8 +482,7 @@ module CatPointedSets where
  open CatPS₁
  
  compCat-eq : {X Y : CatPS₀} {f g : CatPS₁ X Y} → fun f ≅ fun g → f ≅ g
- compCat-eq {obj conj a} {obj conj₁ b} {morp f p₁} {morp g p₂} x =
-   cong₂ morp x (ir2 (cong-app x a) refl p₁ p₂)
+ compCat-eq {obj conj a} {obj conj₁ b} {morp f p₁} {morp .f p₂} refl = cong (morp f) (ir p₁ p₂) 
 
  CatPS : Cat
  CatPS = record
@@ -514,7 +502,6 @@ module CatPointedSets where
   - objetos son conjuntos finitos (y por lo tanto isomorfos a Fin n para algún n)
   - morfismos son isomorfismos.  
 -}
-
 
 module CatFin where
 
@@ -577,23 +564,27 @@ module CatFin where
       fun (g⁻¹ y) ∎))
 
   lemaCatFin : {X Y : Set} {fun : X → Y} → (p₁ p₂ : Iso {Sets} X Y fun) 
-            → p₁ ≅ p₂ 
-  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso invg lg₁ lg₂) with lemaCatFin₀ (iso f⁻¹ lf₁ lf₂) (iso invg lg₁ lg₂)
-  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso .f⁻¹ lg₁ lg₂) | refl = cong₂ (iso f⁻¹) (ir lf₁ lg₁) (ir lf₂ lg₂) 
+               → p₁ ≅ p₂ 
+  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂)
+    with lemaCatFin₀ (iso f⁻¹ lf₁ lf₂) (iso g⁻¹ lg₁ lg₂)
+  lemaCatFin (iso f⁻¹ lf₁ lf₂) (iso .f⁻¹ lg₁ lg₂) | refl =
+    cong₂ (iso f⁻¹) (ir lf₁ lg₁) (ir lf₂ lg₂) 
 
 
-  catFin-eq : {X Y : catFin₀} → (f g : catFin₁ X Y) → fun f ≅ fun g → f ≅ g
-  catFin-eq (morp fun funIso) (morp .fun funIso₁) refl = cong (morp fun) (lemaCatFin funIso funIso₁)
+  catFin-eq : {X Y : catFin₀} → {f g : catFin₁ X Y} → fun f ≅ fun g → f ≅ g
+  catFin-eq {f = morp fun p₁} {morp .fun p₂} refl = cong (morp fun)
+    (lemaCatFin p₁ p₂)
 
-            
-  -- catFin : Cat
-  -- catFin = record
-  --            { Obj = catFin₀
-  --            ; Hom = catFin₁
-  --            ; iden = idenCatFin
-  --            ; _∙_ = compCatFin
-  --            ; idl = {! !}
-  --            ; idr = {!!}
-  --            ; ass = {!!}
-  --            }
+
+-- NO utilizé el echo de que los objetos son finitos
+  catFin : Cat
+  catFin = record
+             { Obj = catFin₀
+             ; Hom = catFin₁
+             ; iden = idenCatFin
+             ; _∙_ = compCatFin
+             ; idl = catFin-eq refl
+             ; idr = catFin-eq refl
+             ; ass = catFin-eq refl
+             }
 --------------------------------------------------

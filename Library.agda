@@ -42,11 +42,6 @@ ir : ∀ {ℓ} {A B : Set ℓ} {x : A} {y : B}
                     (p q : x ≅ y) → p ≅ q
 ir refl refl = refl
 
---AGREGADO por mi
-ir2 : ∀ {ℓ} {A B C D : Set ℓ} {x : A} {y : B} {z : C} {w : D} →
-      (x ≅ z) → (y ≅ w) → (p : x ≅ y) → (q : z ≅ w) → p ≅ q
-ir2 refl refl refl refl = refl
-
 
 {- extensionalidad -}
 postulate ext : ∀{a b}{A : Set a}{B B' : A → Set b}

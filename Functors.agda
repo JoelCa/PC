@@ -118,8 +118,34 @@ mapTree : ∀{A A' B B'} → (A → A') → (B → B') → Tree A B → Tree A' 
 mapTree fl fn (leaf x) = leaf (fl x)
 mapTree fl fn (node t₁ x t₂) = node (mapTree fl fn t₁) (fn x) (mapTree fl fn t₂)
 
+treeId :  {A B : Set} → (t : Tree A B) → mapTree (iden Sets)  (iden Sets) t ≅ (iden Sets) t
+treeId (leaf x) = refl
+treeId (node t x t₁) = proof
+                       node (mapTree (iden Sets) (iden Sets) t) (iden Sets x)
+                         (mapTree (iden Sets) (iden Sets) t₁)
+                       ≅⟨ refl ⟩
+                       node (mapTree (iden Sets) (iden Sets) t) x
+                         (mapTree (iden Sets) (iden Sets) t₁)
+                       ≅⟨ cong₂ (λ x₁ x₂ → node x₁ x x₂) (treeId t) (treeId t₁) ⟩
+                       node t x t₁ ∎
+
+treeComp : {A B C A' B' C' : Set} {f₁ : A → B} {g₁ : B → C} {f₂ : A' → B'} {g₂ : B' → C'} →
+  (t : Tree A A') → mapTree (g₁ ∘ f₁) (g₂ ∘ f₂) t ≅  ((mapTree g₁ g₂) ∘ (mapTree f₁ f₂)) t
+treeComp (leaf x) = refl
+treeComp {f₁ = f₁} {g₁} {f₂} {g₂} (node t x t₁) =
+  proof
+  node (mapTree (g₁ ∘ f₁) (g₂ ∘ f₂) t) ((g₂ ∘ f₂) x) (mapTree (g₁ ∘ f₁) (g₂ ∘ f₂) t₁)
+  ≅⟨ cong₂ (λ x₁ x₂ → node x₁ ((g₂ ∘ f₂) x) x₂) (treeComp t) (treeComp t₁) ⟩
+  node ((mapTree g₁ g₂ ∘ mapTree f₁ f₂) t) ((g₂ ∘ f₂) x)
+    ((mapTree g₁ g₂ ∘ mapTree f₁ f₂) t₁)
+  ≅⟨ refl ⟩
+  (mapTree g₁ g₂ ∘ mapTree f₁ f₂) (node t x t₁)
+  ∎
+
+
 TreeF : Fun (Sets ×C Sets) Sets
-TreeF = functor (λ x → Tree (fst x) (snd x)) (λ fg t → mapTree (fst fg) (snd fg) t) {!!} {!!}
+TreeF = functor (λ x → Tree (fst x) (snd x)) (λ fg t → mapTree (fst fg) (snd fg) t)
+  (ext (λ t → treeId t)) (ext (λ t → treeComp t))
 
 --------------------------------------------------
 {- Hom functor : probar que el Hom de una categoría C
