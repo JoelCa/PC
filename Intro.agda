@@ -32,9 +32,9 @@ data ℕ : Set where
 -}
 {-# BUILTIN NATURAL ℕ    #-}
 
-{- En versiones viejas agregar-}
-{-# BUILTIN ZERO    zero #-}
-{-# BUILTIN SUC     suc  #-}
+-- {- En versiones viejas agregar-}
+-- {-# BUILTIN ZERO    zero #-}
+-- {-# BUILTIN SUC     suc  #-}
 
 
 _+_ : ℕ → ℕ → ℕ

@@ -172,12 +172,29 @@ HomF c = let _∙_ = Cat._∙_ c in
                         g₁ ∙ (g₂ ∙ ((h ∙ f₂) ∙ f₁))
                         ≅⟨ cong (λ x₁ → g₁ ∙ x₁) (sym (ass c {f = g₂} {h ∙ f₂} {f₁})) ⟩
                         g₁ ∙ ((g₂ ∙ (h ∙ f₂)) ∙ f₁) ∎)})
-
+     
 --------------------------------------------------
 {- Composición de funtores -}
 _○_ : ∀{C : Cat}{D : Cat}{E : Cat} → 
       Fun D E → Fun C D → Fun C E
-_○_ {C}{D}{E} F G = {!!}
+_○_ {C}{D}{E} F G = let _∙_ = Cat._∙_ C
+                        _∙'_ = Cat._∙_ D
+                        _∙''_ = Cat._∙_ E
+                    in                        
+                    functor (OMap F ∘ OMap G)
+                            (HMap F ∘ HMap G)
+                            (proof
+                              HMap F (HMap G (iden C))
+                              ≅⟨ cong (λ x → HMap F x) (fid G) ⟩
+                              HMap F (iden D)
+                              ≅⟨ fid F ⟩
+                              iden E ∎)
+                            (λ {x} {y} {z} {f} {g} →
+                              proof HMap F (HMap G (f ∙ g))
+                                ≅⟨ cong (λ x₁ → HMap F x₁) (fcomp G) ⟩
+                                HMap F (HMap G f ∙' HMap G g)
+                                ≅⟨ fcomp F ⟩
+                                HMap F (HMap G f) ∙'' HMap F (HMap G g) ∎)
     
 infixr 10 _○_
 
@@ -194,7 +211,10 @@ FunctorEq : ∀{C : Cat}{D : Cat}
          →  OMap F ≅ OMap G
          →  (λ {X Y} → HMap F {X}{Y}) ≅ (λ {X}{Y} → HMap G {X}{Y})
          → F ≅ G
-FunctorEq = {!!}
+FunctorEq (functor OMap₁ HMap₁ fid₁ fcomp₁) (functor .OMap₁ .HMap₁ fid₂ fcomp₂) refl refl =
+  cong₂ (functor OMap₁ HMap₁)
+        (iir fid₁ fid₂)
+        (iext (λ x → iext (λ y → iext (λ z → i2ir (fcomp₁ {x} {y} {z}) (fcomp₂ {x} {y} {z})))))
 
 --------------------------------------------------
 
@@ -222,7 +242,7 @@ CAT = record
 
 {- Ejercicio: Probar que los funtores preservan isomorfismos Es decir,
 que si tenemos un funtor F : C → D, y f es un componente de un
-isomorfismo en C, entonces (HMap F f) es un isomotfismo en D.
+isomorfismo en C, entonces (HMap F f) es un isomorfismo en D.
 
 -}
 
@@ -230,7 +250,27 @@ open Iso
 
 FunIso : ∀{C D}(F : Fun C D){X Y}{f : Cat.Hom C X Y}
        → Iso {C} X Y f → Iso {D} _ _ (HMap F f)
-FunIso  = {!!}
+FunIso {C} {D} F {f = f} (iso f⁻¹ l₁ l₂) =
+  let _∙_ = Cat._∙_ C
+      _∙'_ = Cat._∙_ D
+  in iso
+     (HMap F f⁻¹)
+     (proof
+       HMap F f ∙' HMap F f⁻¹
+       ≅⟨ sym (fcomp F {f = f} {f⁻¹}) ⟩
+       HMap F (f ∙ f⁻¹)
+       ≅⟨ cong (λ x → HMap F x) l₁ ⟩
+       HMap F (iden C)
+       ≅⟨ fid F ⟩
+       iden D ∎)
+     (proof
+       HMap F f⁻¹ ∙' HMap F f
+       ≅⟨ sym (fcomp F {f = f⁻¹} {f}) ⟩
+       HMap F (f⁻¹ ∙ f)
+       ≅⟨ cong (λ x → HMap F x) l₂ ⟩
+       HMap F (iden C)
+       ≅⟨ fid F ⟩
+       iden D ∎)
 
 --------------------------------------------------
 
@@ -240,5 +280,3 @@ FunIso  = {!!}
    monoides entre M y N.
 
 -}
-
-
