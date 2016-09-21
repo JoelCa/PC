@@ -88,13 +88,13 @@ module Ejemplos where
  open import Functors.Constant
  open import Data.Nat
  open import Data.List.Base renaming (map to mapList)
+ open import Data.Maybe.Base renaming (map to mapMaybe)
 
  {- reverse es una transformación natural -}
 
  open Cat (Sets {lzero})
 
  --
-
  lemaMapFoldl : ∀ {a} {A : Set a} {B : Set a} →
                   {f : A → B} {c : ∀ {X} →  List X → X → List X} {xs : List A} →
                   (∀ {n} {x} → mapList f (c n x) ≅ c (mapList f n) (f x)) →
@@ -116,29 +116,52 @@ module Ejemplos where
                              ext (λ xs → lemaRev {f = f} {xs}))
 
 --
+ distMap++ : ∀ {a} {b} {A : Set a} {B : Set b} {xs ys : List A} {f : A → B} → mapList f (xs ++ ys) ≅ mapList f xs ++ mapList f ys
+ distMap++ {xs = []} = refl
+ distMap++ {xs = x ∷ xs} = λ {ys} {f} → proof 
+                                       f x ∷ mapList f (xs ++ ys) 
+                                       ≅⟨ cong (λ x₁ → f x ∷ x₁) (distMap++ {xs = xs} {ys} {f}) ⟩ 
+                                       f x ∷ mapList f xs ++ mapList f ys ∎ 
 
  lemaCon : ∀ {a} {b} {A : Set a} {B : Set b} {f : A → B} {xs : List (List A)} →
            mapList f (concat xs) ≅ concat (mapList (mapList f) xs)
  lemaCon {xs = []} = refl
- lemaCon {f = f} {xs ∷ xss} = {!!}
-
+ lemaCon {f = f} {xs ∷ xss} = proof
+                              mapList f (xs ++ (concat xss)) 
+                              ≅⟨ distMap++ {xs = xs} {concat xss} {f} ⟩ 
+                              (mapList f xs) ++ (mapList f (concat xss))  
+                              ≅⟨ cong (λ x → (mapList f xs) ++ x) (lemaCon {xs = xss}) ⟩ 
+                              (mapList f xs) ++ concat (mapList (mapList f) xss) ∎
 
  concatNat : NatT (ListF ○ ListF) ListF
- concatNat = natural concat {!!}
+ concatNat = natural concat (λ {_} {_} {f} → ext (λ xss → lemaCon {f = f} {xs = xss}))
 
  --
- lengthNat : NatT ListF (K ℕ)
- lengthNat = natural length {!!}
 
+ lemaLenMap : ∀ {A B : Set}{f : A → B} {xs : List A} → length (mapList f xs) ≅ length xs
+ lemaLenMap {xs = []} = refl
+ lemaLenMap {f = f} {xs = x ∷ xs} = proof
+                            1 + length (mapList f xs) 
+                            ≅⟨ cong (λ x₁ → 1 + x₁) (lemaLenMap {xs = xs}) ⟩ 
+                            1 + length xs ∎
+
+ lengthNat : NatT ListF (K ℕ)
+ lengthNat = natural length (λ {_} {_} {f} → ext (λ xs → proof
+                                                          length xs
+                                                          ≅⟨ sym (lemaLenMap {f = f} {xs}) ⟩
+                                                          length (mapList f xs) ∎))
  --
  safeHead : {A : Set} → List A → Maybe A
  safeHead [] = nothing
  safeHead (x ∷ xs) = just x
 
- headNat : NatT ListF MaybeF
- headNat = natural safeHead {!!}
+ lemaSafeH : ∀ {A B : Set}{f : A → B} {xs : List A} → mapMaybe f (safeHead xs) ≅ safeHead (mapList f xs)
+ lemaSafeH {xs = []} = refl
+ lemaSafeH {xs = x ∷ xs} = refl
 
- --
+ headNat : NatT ListF MaybeF
+ headNat = natural safeHead ((λ {_} {_} {f} → ext (λ xs → lemaSafeH {xs = xs})))
+
 --------------------------------------------------
 -- Natural isomorphism
 {- Un isomorfismo natural es una transformación natural tal que
@@ -158,12 +181,21 @@ compFNat : ∀{a b c d e f}{C : Cat {a} {b}}{D : Cat {c} {d}}{E : Cat {e} {f}}
             {F G : Fun C D}
          → (J : Fun D E)
          → (η : NatT F G) → NatT (J ○ F) (J ○ G)
-compFNat {D = D} {E} {F} {G} J η =
-               let open NatT η
+compFNat {D = D} {E} {F} {G} J (natural η p) =
+               let --open NatT η
                    open Cat D renaming (_∙_ to _∙D_)
                    open Cat E renaming (_∙_ to _∙E_)
                in
-               {!!}
+               natural (HMap J η)
+                       (λ {_} {_} {f} →
+                         (proof
+                         HMap J (HMap G f) ∙E HMap J η
+                         ≅⟨ sym (fcomp J) ⟩ 
+                         HMap J (HMap G f ∙D η)
+                         ≅⟨ cong (λ x → HMap J x) p  ⟩ 
+                         HMap J (η ∙D HMap F f)
+                         ≅⟨ fcomp J ⟩
+                         HMap J η ∙E  HMap J (HMap F f) ∎ ))
 
 compNatF :  ∀{a b c d e f}{C : Cat {a} {b}}{D : Cat {c} {d}}{E : Cat {e} {f}}
             {J K : Fun D E}
@@ -174,7 +206,8 @@ compNatF {C = C} {D} {E} {J} {K} η F =
                let open NatT η
                    open Cat D renaming (_∙_ to _∙D_)
                    open Cat E renaming (_∙_ to _∙E_)
-               in {!!}
+               in natural (λ {x} → cmp {OMap F x})
+                          nat
 
 --------------------------------------------------
 -- Composición horizontal
@@ -212,3 +245,4 @@ interchange {D = D}{E}{I = I}{J} (natural α _) (natural β _) (natural γ natγ
            {!!}
 
 
+--Ctrol + c + n, normaliza en el contexto del aujero el termino
