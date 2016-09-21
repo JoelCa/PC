@@ -33,12 +33,33 @@ NatTEq2 {α = natural cmp _} {natural .cmp _} refl refl refl =
 --------------------------------------------------
 -- la identidad es una transformación natural
 idNat : ∀{a b c d}{C : Cat {a} {b}}{D : Cat {c} {d}}{F : Fun C D} → NatT F F
-idNat {D = D}{F} = let open Cat D in {!!}
+idNat {D = D}{F} = let open Cat D in
+                   natural iden (λ {_} {_} {f} →
+                                   proof
+                                   HMap F f ∙ iden
+                                   ≅⟨ idr ⟩
+                                   HMap F f
+                                   ≅⟨ sym idl ⟩
+                                   iden ∙ HMap F f ∎)
 
 -- Composición (vertical) de transformaciones naturales
 compVNat : ∀{a b c d}{C : Cat {a} {b}}{D : Cat {c} {d}}{F G H : Fun C D} → 
           NatT G H → NatT F G → NatT F H
-compVNat {D = D}{F}{G}{H} α β = let open Cat D; open NatT in {!!}
+compVNat {D = D}{F}{G}{H} (natural β p₂) (natural α p₁) = let open Cat D; open NatT in
+                                                          natural (β ∙ α)
+                                                          (λ {_} {_} {f} →
+                                                            proof
+                                                            HMap H f ∙ (β ∙ α)
+                                                            ≅⟨ sym ass ⟩
+                                                            (HMap H f ∙ β) ∙ α
+                                                            ≅⟨ cong (λ x → x ∙ α) p₂ ⟩
+                                                            (β ∙ HMap G f) ∙ α
+                                                            ≅⟨ ass ⟩
+                                                            β ∙ (HMap G f ∙ α)
+                                                            ≅⟨ cong (λ x → β ∙ x) p₁ ⟩
+                                                            β ∙ (α ∙ HMap F f)
+                                                            ≅⟨ sym ass ⟩
+                                                            (β ∙ α) ∙ HMap F f ∎)
 
 --------------------------------------------------
 {- Categorías de funtores
@@ -46,14 +67,15 @@ compVNat {D = D}{F}{G}{H} α β = let open Cat D; open NatT in {!!}
  y los morfismos son las transformaciones naturales entre ellos.
 -}
 FunctorCat : ∀{a b c d} → Cat {a}{b} → Cat {c}{d} → Cat
-FunctorCat C D = record{
-  Obj  = Fun C D;
-  Hom  = NatT;
-  iden = idNat;
-  _∙_  = compVNat;
-  idl  = {!!};
-  idr  = {!!};
-  ass  = {!!}}
+FunctorCat C D = let open Cat D in
+                 record{
+                 Obj  = Fun C D;
+                 Hom  = NatT;
+                 iden = idNat;
+                 _∙_  = compVNat;
+                 idl  = NatTEq (iext (λ x → idl));
+                 idr  = NatTEq (iext (λ x → idr));
+                 ass  = NatTEq (iext (λ x → ass))}
 
 --------------------------------------------------
 -- Algunos ejemplos de transformaciones naturales
@@ -65,16 +87,42 @@ module Ejemplos where
  open import Functors.Maybe
  open import Functors.Constant
  open import Data.Nat
+ open import Data.List.Base renaming (map to mapList)
 
  {- reverse es una transformación natural -}
 
  open Cat (Sets {lzero})
 
  --
- revNat : NatT ListF ListF
- revNat = natural reverse {!!}
 
- --
+ lemaMapFoldl : ∀ {a} {A : Set a} {B : Set a} →
+                  {f : A → B} {c : ∀ {X} →  List X → X → List X} {xs : List A} →
+                  (∀ {n} {x} → mapList f (c n x) ≅ c (mapList f n) (f x)) →
+                  (∀ {n} → mapList f (foldl c n xs) ≅ foldl c (mapList f n) (mapList f xs))
+ lemaMapFoldl {f = f} {c} {[]} h = refl
+ lemaMapFoldl {f = f} {c} {(x ∷ xs)} h = λ {n} → proof
+                                                 mapList f (foldl c (c n x) xs)
+                                                 ≅⟨ lemaMapFoldl {xs = xs} h ⟩
+                                                 foldl c (mapList f (c n x)) (mapList f xs)
+                                                 ≅⟨ cong (λ x₁ → foldl c x₁ (mapList f xs)) h ⟩
+                                                 foldl c (c (mapList f n) (f x)) (mapList f xs) ∎
+
+ lemaRev : {A B : Set} {f : A → B} {xs : List A} →
+              (mapList f) (reverse xs) ≅ reverse (mapList f xs)
+ lemaRev {f = f} {xs} = lemaMapFoldl {f = f} {xs = xs} refl
+
+ revNat : NatT ListF ListF
+ revNat = natural reverse (λ {_} {_} {f} →
+                             ext (λ xs → lemaRev {f = f} {xs}))
+
+--
+
+ lemaCon : ∀ {a} {b} {A : Set a} {B : Set b} {f : A → B} {xs : List (List A)} →
+           mapList f (concat xs) ≅ concat (mapList (mapList f) xs)
+ lemaCon {xs = []} = refl
+ lemaCon {f = f} {xs ∷ xss} = {!!}
+
+
  concatNat : NatT (ListF ○ ListF) ListF
  concatNat = natural concat {!!}
 
