@@ -215,7 +215,34 @@ compHNat : ∀{a b c d e f}{C : Cat {a} {b}}{D : Cat {c} {d}}{E : Cat {e} {f}}
             {F G : Fun C D}{J K : Fun D E}
             (η : NatT F G)(ε : NatT J K)
             → NatT (J ○ F) (K ○ G)
-compHNat {G = G} {J} η ε = {!!}
+compHNat {D = D} {E} {F} {G} {J} {K} (natural η p₁) (natural ε p₂) =
+  let
+    open Cat D renaming (_∙_ to _∙D_)
+    open Cat E renaming (_∙_ to _∙E_)
+  in
+  natural (λ {x} → ε {OMap G x} ∙E HMap J (η {x}))
+          (λ {_} {_} {f} →
+            proof
+              HMap K (HMap G f) ∙E (ε ∙E HMap J η)
+              ≅⟨ sym (cong (λ x →  HMap K (HMap G f) ∙E x) (p₂ {f = η})) ⟩
+              HMap K (HMap G f) ∙E (HMap K η ∙E ε)
+              ≅⟨ sym (Cat.ass E) ⟩
+              (HMap K (HMap G f) ∙E (HMap K η)) ∙E ε
+              ≅⟨ cong (λ x → x ∙E ε) (sym (fcomp K)) ⟩
+              HMap K (HMap G f ∙D η) ∙E ε
+              ≅⟨ cong (λ x → HMap K x ∙E ε) p₁ ⟩
+              HMap K (η ∙D HMap F f) ∙E ε
+              ≅⟨ cong (λ x → x ∙E ε) (fcomp K) ⟩
+              (HMap K η ∙E HMap K (HMap F f)) ∙E ε
+              ≅⟨ Cat.ass E ⟩
+              HMap K η ∙E (HMap K (HMap F f) ∙E ε)
+              ≅⟨ cong (λ x → HMap K η ∙E x) p₂ ⟩
+              HMap K η ∙E (ε ∙E HMap J (HMap F f)) 
+              ≅⟨ sym (Cat.ass E) ⟩
+              (HMap K η ∙E ε) ∙E HMap J (HMap F f)              
+              ≅⟨ cong (λ x → x ∙E HMap J (HMap F f) ) p₂ ⟩
+              (ε ∙E HMap J η) ∙E HMap J (HMap F f)
+              ∎)
 
 
 -- La composición horizontal es asociativa
