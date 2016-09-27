@@ -116,7 +116,8 @@ module Ejemplos where
                              ext (λ xs → lemaRev {f = f} {xs}))
 
 --
- distMap++ : ∀ {a} {b} {A : Set a} {B : Set b} {xs ys : List A} {f : A → B} → mapList f (xs ++ ys) ≅ mapList f xs ++ mapList f ys
+ distMap++ : ∀ {a} {b} {A : Set a} {B : Set b} {xs ys : List A} {f : A → B}
+             → mapList f (xs ++ ys) ≅ mapList f xs ++ mapList f ys
  distMap++ {xs = []} = refl
  distMap++ {xs = x ∷ xs} = λ {ys} {f} → proof 
                                        f x ∷ mapList f (xs ++ ys) 
@@ -155,7 +156,8 @@ module Ejemplos where
  safeHead [] = nothing
  safeHead (x ∷ xs) = just x
 
- lemaSafeH : ∀ {A B : Set}{f : A → B} {xs : List A} → mapMaybe f (safeHead xs) ≅ safeHead (mapList f xs)
+ lemaSafeH : ∀ {A B : Set}{f : A → B} {xs : List A} →
+             mapMaybe f (safeHead xs) ≅ safeHead (mapList f xs)
  lemaSafeH {xs = []} = refl
  lemaSafeH {xs = x ∷ xs} = refl
 
@@ -182,7 +184,7 @@ compFNat : ∀{a b c d e f}{C : Cat {a} {b}}{D : Cat {c} {d}}{E : Cat {e} {f}}
          → (J : Fun D E)
          → (η : NatT F G) → NatT (J ○ F) (J ○ G)
 compFNat {D = D} {E} {F} {G} J (natural η p) =
-               let --open NatT η
+               let 
                    open Cat D renaming (_∙_ to _∙D_)
                    open Cat E renaming (_∙_ to _∙E_)
                in
@@ -247,15 +249,24 @@ compHNat {D = D} {E} {F} {G} {J} {K} (natural η p₁) (natural ε p₂) =
 
 -- La composición horizontal es asociativa
 compHNat-assoc : ∀{a1 b1 a2 b2 a3 b3 a4 b4}
-                    {C1 : Cat {a1} {b1}}{C2 : Cat {a2} {b2}}{C3 : Cat {a3} {b3}}{C4 : Cat {a4} {b4}}
+                    {C1 : Cat {a1} {b1}}{C2 : Cat {a2} {b2}}
+                    {C3 : Cat {a3} {b3}}{C4 : Cat {a4} {b4}}
                     {F G : Fun C1 C2}{J K : Fun C2 C3}{L M : Fun C3 C4} 
                  →  (η1 : NatT F G)(η2 : NatT J K)(η3 : NatT L M)
                  →  compHNat (compHNat η1 η2) η3 ≅ compHNat η1 (compHNat η2 η3)
-compHNat-assoc {C3 = C3}{C4 = C4}{J = J}{L = L} (natural cmp1 _) (natural cmp2 _) (natural cmp3 _) =
+compHNat-assoc {C3 = C3}{C4 = C4}{J = J}{L = L}
+               (natural cmp1 _) (natural cmp2 _) (natural cmp3 _) =
                    let   _∙4_ = Cat._∙_ C4
                          _∙3_ = Cat._∙_ C3                         
                    in
-                     {!!}
+                   NatTEq2 (Functor-Eq refl refl) (Functor-Eq refl refl)
+                           (iext (λ x →
+                                    proof
+                                      cmp3 ∙4 ((HMap L (cmp2 ∙3 (HMap J cmp1))))
+                                      ≅⟨ cong (λ x₁ → cmp3 ∙4 x₁) (fcomp L) ⟩
+                                      cmp3 ∙4 (HMap L cmp2 ∙4 (HMap L (HMap J cmp1)))
+                                      ≅⟨ sym (Cat.ass C4) ⟩
+                                      (cmp3 ∙4 HMap L cmp2) ∙4 (HMap L (HMap J cmp1)) ∎))
 
 
 -- ley de intercambio
@@ -269,7 +280,17 @@ interchange {D = D}{E}{I = I}{J} (natural α _) (natural β _) (natural γ natγ
               _∙D_ = Cat._∙_ D
               open Cat E
            in
-           {!!}
-
-
---Ctrol + c + n, normaliza en el contexto del aujero el termino
+           NatTEq (iext (λ x → proof
+                               (δ ∙ γ) ∙ HMap I (β ∙D α)
+                               ≅⟨ cong (λ x₁ → (δ ∙ γ) ∙ x₁) (fcomp I) ⟩
+                               (δ ∙ γ) ∙ (HMap I β ∙ HMap I α)
+                               ≅⟨ ass ⟩
+                               δ ∙ (γ ∙ (HMap I β ∙ HMap I α))
+                               ≅⟨ cong (λ x₁ → δ ∙ x₁) (sym ass) ⟩
+                               δ ∙ ((γ ∙ HMap I β) ∙ HMap I α)
+                               ≅⟨ cong (λ x₁ → δ ∙ (x₁ ∙ HMap I α)) (sym natγ) ⟩
+                               δ ∙ ((HMap J β ∙ γ) ∙ HMap I α)
+                               ≅⟨ cong (λ x₁ → δ ∙ x₁) ass ⟩
+                               δ ∙ (HMap J β ∙ (γ ∙ HMap I α))
+                               ≅⟨ sym ass ⟩
+                               (δ ∙ HMap J β) ∙ (γ ∙ HMap I α) ∎))
