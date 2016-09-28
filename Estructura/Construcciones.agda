@@ -130,35 +130,236 @@ module ProductMorphisms {a}{b}{C : Cat {a}{b}}(p : Products C) where
 
   {- Toda categoría con productos posee los siguientes morfismos -}
   swap : ∀{A B} → Hom (A × B)  (B × A)
-  swap = {!!}
+  swap = λ {A} {B} → ⟨_,_⟩ {B} {A} (π₂ {A} {B}) (π₁ {A} {B})
 
   assoc : ∀{A B C} → Hom ((A × B) × C) (A × (B × C))
-  assoc = {!!}
+  assoc = ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
 
   -- Probar que swap y assoc son isomorfismos.
+  swapIso : ∀{A B} → Iso C (swap {A} {B})
+  swapIso = iso (⟨_,_⟩ π₂ π₁)
+                (sym (proof
+                        iden
+                        ≅⟨ law3 idr idr ⟩
+                        ⟨ π₁ , π₂ ⟩
+                        ≅⟨ sym (law3 (proof
+                                     π₁ ∙ (⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩)
+                                     ≅⟨ sym ass ⟩
+                                     ( π₁ ∙ ⟨ π₂ , π₁ ⟩) ∙ ⟨ π₂ , π₁ ⟩
+                                     ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) law1 ⟩
+                                     π₂ ∙ ⟨ π₂ , π₁ ⟩
+                                     ≅⟨ law2 ⟩
+                                     π₁ ∎)
+                                     (proof
+                                       π₂ ∙ (⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩)
+                                       ≅⟨ sym ass ⟩
+                                       ( π₂ ∙ ⟨ π₂ , π₁ ⟩) ∙ ⟨ π₂ , π₁ ⟩
+                                       ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) law2 ⟩
+                                       π₁ ∙ ⟨ π₂ , π₁ ⟩
+                                       ≅⟨ law1 ⟩
+                                       π₂ ∎) )⟩
+                        ⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩ ∎))
+                (sym (proof
+                     iden
+                     ≅⟨ law3 idr idr ⟩
+                     ⟨ π₁ , π₂ ⟩
+                     ≅⟨ sym (law3 (proof
+                                     π₁ ∙ (⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩)
+                                     ≅⟨ sym ass ⟩
+                                     ( π₁ ∙ ⟨ π₂ , π₁ ⟩) ∙ ⟨ π₂ , π₁ ⟩
+                                     ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) law1 ⟩
+                                     π₂ ∙ ⟨ π₂ , π₁ ⟩
+                                     ≅⟨ law2 ⟩
+                                     π₁ ∎)
+                                     (proof
+                                       π₂ ∙ (⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩)
+                                       ≅⟨ sym ass ⟩
+                                       ( π₂ ∙ ⟨ π₂ , π₁ ⟩) ∙ ⟨ π₂ , π₁ ⟩
+                                       ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) law2 ⟩
+                                       π₁ ∙ ⟨ π₂ , π₁ ⟩
+                                       ≅⟨ law1 ⟩
+                                       π₂ ∎) )⟩
+                     ⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩ ∎))
+
+  assocIso : ∀{A B D} → Iso C (assoc {A} {B} {D})
+  assocIso = iso (⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                 (sym (proof
+                      iden
+                      ≅⟨ law3 idr idr ⟩
+                      ⟨ π₁ , π₂ ⟩
+                      ≅⟨ sym (law3 (proof
+                                   π₁ ∙ (⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                          ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                   ≅⟨ sym ass ⟩
+                                   (π₁ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                    ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ 
+                                   ≅⟨ cong (λ x → x ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩) law1 ⟩
+                                   (π₁ ∙ π₁) ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩
+                                   ≅⟨ ass ⟩
+                                   π₁ ∙ (π₁ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                   ≅⟨ cong (λ x → π₁ ∙ x) law1 ⟩
+                                   π₁ ∙ ⟨ π₁ , π₁ ∙ π₂ ⟩
+                                   ≅⟨ law1 ⟩
+                                   π₁ ∎)
+                                   (proof
+                                     π₂ ∙ (⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                             ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                     ≅⟨ sym ass ⟩
+                                     (π₂ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                       ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ 
+                                     ≅⟨ cong (λ x → x ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩) law2 ⟩
+                                     ⟨ π₂ ∙ π₁ , π₂ ⟩ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩
+                                     ≅⟨ law3 (proof
+                                             π₁ ∙ (⟨ π₂ ∙ π₁ , π₂ ⟩
+                                                     ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                             ≅⟨ sym ass ⟩
+                                             (π₁ ∙ ⟨ π₂ ∙ π₁ , π₂ ⟩)
+                                               ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ 
+                                             ≅⟨ cong (λ x → x ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                                     law1 ⟩
+                                             (π₂ ∙ π₁) ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ 
+                                             ≅⟨ ass ⟩
+                                             π₂ ∙ (π₁ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ )
+                                             ≅⟨ cong (λ x → π₂ ∙ x) law1 ⟩
+                                             π₂ ∙ ⟨ π₁ , π₁ ∙ π₂ ⟩
+                                             ≅⟨ law2 ⟩
+                                             π₁ ∙ π₂ ∎)
+                                             (proof
+                                               π₂ ∙ (⟨ π₂ ∙ π₁ , π₂ ⟩
+                                                     ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                               ≅⟨ sym ass ⟩
+                                               (π₂ ∙ ⟨ π₂ ∙ π₁ , π₂ ⟩)
+                                                 ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ 
+                                               ≅⟨ cong (λ x → x ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                                       law2 ⟩
+                                               π₂ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩
+                                               ≅⟨ law2 ⟩
+                                               π₂ ∙ π₂ ∎) ⟩
+                                     ⟨ π₁ ∙ π₂ , π₂ ∙ π₂ ⟩
+                                     ≅⟨ sym (law3 refl refl) ⟩
+                                     π₂ ∎)) ⟩
+                      ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ ∎))
+                 (sym (proof
+                      iden
+                      ≅⟨ law3 idr idr ⟩
+                      ⟨ π₁ , π₂ ⟩
+                      ≅⟨ sym ( law3 (proof
+                                    π₁ ∙ (⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩
+                                            ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                    ≅⟨ sym ass ⟩
+                                    (π₁ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                    ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                    ≅⟨ cong (λ x → x ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                            law1 ⟩
+                                    ⟨ π₁ , π₁ ∙ π₂ ⟩ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                    ≅⟨ law3 (proof
+                                            π₁ ∙ (⟨ π₁ , π₁ ∙ π₂ ⟩
+                                                    ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                            ≅⟨ sym ass ⟩
+                                            (π₁ ∙ ⟨ π₁ , π₁ ∙ π₂ ⟩)
+                                              ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                            ≅⟨ cong (λ x → x ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                                    law1 ⟩
+                                            π₁ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                            ≅⟨ law1 ⟩
+                                            π₁ ∙ π₁ ∎)
+                                            (proof
+                                            π₂ ∙ (⟨ π₁ , π₁ ∙ π₂ ⟩
+                                                    ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                            ≅⟨ sym ass ⟩
+                                            (π₂ ∙ ⟨ π₁ , π₁ ∙ π₂ ⟩)
+                                              ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                            ≅⟨ cong (λ x → x ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                                    law2 ⟩
+                                            (π₁ ∙ π₂) ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                            ≅⟨ ass ⟩
+                                            π₁ ∙ (π₂ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                            ≅⟨ cong (λ x → π₁ ∙ x) law2 ⟩
+                                            π₁ ∙ ⟨ π₂ ∙ π₁ , π₂ ⟩
+                                            ≅⟨ law1 ⟩
+                                            π₂ ∙ π₁ ∎) ⟩
+                                    ⟨ π₁ ∙ π₁ ,  π₂ ∙ π₁ ⟩
+                                    ≅⟨ sym (law3 refl refl) ⟩
+                                    π₁ ∎)
+                                    (proof
+                                      π₂ ∙ (⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩
+                                              ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                      ≅⟨ sym ass ⟩
+                                      (π₂ ∙ ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩)
+                                        ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩
+                                      ≅⟨ cong (λ x → x ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                              law2 ⟩
+                                      (π₂ ∙ π₂) ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩ 
+                                      ≅⟨ ass ⟩
+                                      π₂ ∙ (π₂ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩)
+                                      ≅⟨ cong (λ x → π₂ ∙ x) law2 ⟩
+                                      π₂ ∙ ⟨ π₂ ∙ π₁ , π₂ ⟩
+                                      ≅⟨ law2 ⟩
+                                      π₂ ∎) ) ⟩
+                      ⟨ ⟨ π₁ , π₁ ∙ π₂ ⟩ , π₂ ∙ π₂ ⟩ ∙ ⟨ π₁ ∙ π₁ , ⟨ π₂ ∙ π₁ , π₂ ⟩ ⟩ ∎))
 
 
   {- Definir el morfismo pair -}
   pair : ∀{A B C D}(f : Hom A B)(g : Hom C D)
        → Hom (A × C) (B × D)
-  pair f g = {!!}
+  pair f g = ⟨ f ∙ π₁ , g ∙ π₂ ⟩
 
   -- Probar las siguientes propiedades de pair
-
-  idpair : ∀{X} → pair (iden {X}) (iden {X}) ≅ iden {X × X}
-  idpair {X} = {!!}
+  -- MODIFICADO
+  idpair : ∀{X Y} → pair (iden {X}) (iden {Y}) ≅ iden {X × Y}
+  idpair = sym (law3 (proof
+                     π₁ ∙ iden
+                     ≅⟨ idr ⟩
+                     π₁
+                     ≅⟨ sym idl ⟩
+                     iden ∙ π₁ ∎)
+                     (proof
+                       π₂ ∙ iden
+                       ≅⟨ idr ⟩
+                       π₂
+                       ≅⟨ sym idl ⟩
+                       iden ∙  π₂ ∎))
 
   compdistrib : ∀{A B C D E F}
               → (f : Hom B C)(g : Hom A B)
               → (h : Hom E F)(i : Hom D E)
               → pair (f ∙ g) (h ∙ i) ≅ pair f h ∙ pair g i
-  compdistrib f g h i = {!!}
+  compdistrib f g h i = sym (law3 (proof
+                                  π₁ ∙ (pair f h ∙ pair g i)
+                                  ≅⟨ sym ass ⟩
+                                  (π₁ ∙ pair f h) ∙ pair g i
+                                  ≅⟨ cong (λ x → x ∙ pair g i) law1 ⟩
+                                  (f ∙ π₁) ∙ pair g i
+                                  ≅⟨ ass ⟩
+                                  f ∙ (π₁ ∙ pair g i)
+                                  ≅⟨ cong (λ x → f ∙ x) law1 ⟩
+                                  f ∙ (g ∙ π₁) 
+                                  ≅⟨ sym ass ⟩
+                                  (f ∙ g) ∙ π₁ ∎)
+                                  (proof
+                                    π₂ ∙ (pair f h ∙ pair g i)
+                                    ≅⟨ sym ass ⟩
+                                    (π₂ ∙ pair f h) ∙ pair g i
+                                    ≅⟨ cong (λ x → x ∙ pair g i) law2 ⟩
+                                    (h ∙ π₂) ∙ pair g i
+                                    ≅⟨ ass ⟩
+                                    h ∙ (π₂ ∙ pair g i)
+                                    ≅⟨ cong (λ x → h ∙ x) law2 ⟩
+                                    h ∙ (i ∙ π₂)
+                                    ≅⟨ sym ass ⟩
+                                    (h ∙ i) ∙ π₂ ∎))
 
   open import Categories.ProductCat
   open import Functors
 
   -- Probar que el producto de objetos _×_, junto con pair
   -- forman un funtor C ×C C → C
+
+  prodPairFun : Fun (C ×C C) C
+  prodPairFun = functor (λ xy →  fst xy × snd xy)
+                        (λ fg → pair (fst fg) (snd fg))
+                        idpair
+                        (λ { {f = f₁ , f₂} {g₁ , g₂} → compdistrib f₁ g₁ f₂ g₂ })
   
 --------------------------------------------------
 
