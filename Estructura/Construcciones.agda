@@ -1,4 +1,5 @@
 
+
 module Construcciones where
 
 open import Library hiding (_×_ ; swap)
@@ -356,10 +357,9 @@ module ProductMorphisms {a}{b}{C : Cat {a}{b}}(p : Products C) where
   -- forman un funtor C ×C C → C
 
   prodPairFun : Fun (C ×C C) C
-  prodPairFun = functor (λ xy →  fst xy × snd xy)
+  prodPairFun = functor (λ xy → fst xy × snd xy)
                         (λ fg → pair (fst fg) (snd fg))
                         idpair
                         (λ { {f = f₁ , f₂} {g₁ , g₂} → compdistrib f₁ g₁ f₂ g₂ })
   
 --------------------------------------------------
-
