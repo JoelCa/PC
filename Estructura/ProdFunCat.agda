@@ -10,7 +10,6 @@ module ProdFunCat where
   open import Naturals
   
   open Fun
-  --open Cat
 
   _**_ : ∀{a b c d}{C : Cat {a} {b}}{D : Cat {c} {d}} → 
          Products D → Fun C D → Fun C D → Fun C D
@@ -57,20 +56,44 @@ module ProdFunCat where
                               HMap G (g ∙C f) ∙D π₂ ∎)))
 
 
+  -- Ejercicio Extra
   funPro : ∀{a}{b}{c}{d}{C : Cat {a} {b}}{D : Cat {c} {d}} →
            Products D → Products (FunctorCat C D)
   funPro {C = C} {D} p =
     let open Products p
-        open ProductMorphisms p using (pair ; idpair)
-        open Cat C renaming (_∙_ to _∙C_ ; iden to idenC)
-        open Cat D renaming (_∙_ to _∙D_ ; iden to idenD)                 
-    in prod (_**_ p)
+        open ProductMorphisms p using (pair ; idpair ; pairLema)
+        open Cat C renaming (_∙_ to _∙C_ ; iden to idenC) hiding (ass)
+        open Cat D renaming (_∙_ to _∙D_ ; iden to idenD)
+        _**_ = _**_ p
+    in prod (_**_)
             (λ {_} {_} → natural π₁ (sym law1))
             (λ {_} {_} → natural π₂ (sym law2))
-            {!!}
-            {!!}
-            {!!}
-            {!!}
+            (λ {F} {G} {H} → λ { {natural α p₁} {natural β p₂} →
+                                 natural (λ {_} →  ⟨ α , β ⟩)
+                                         (λ {_} {_} {f} →
+                                           proof
+                                             HMap (F ** G) f ∙D ⟨ α , β ⟩
+                                             ≅⟨ pairLema ⟩
+                                             ⟨ HMap F f ∙D α , HMap G f ∙D β ⟩
+                                             ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) p₁ p₂ ⟩
+                                             ⟨ α ∙D HMap H f , β ∙D HMap H f ⟩
+                                             ≅⟨ sym (law3 (proof
+                                                          π₁ ∙D ⟨ α , β ⟩ ∙D HMap H f
+                                                          ≅⟨ sym ass ⟩
+                                                          (π₁ ∙D ⟨ α , β ⟩) ∙D HMap H f
+                                                          ≅⟨ cong (λ x → x ∙D HMap H f) law1 ⟩
+                                                          α ∙D HMap H f ∎)
+                                                          (proof
+                                                            π₂ ∙D ⟨ α , β ⟩ ∙D HMap H f
+                                                            ≅⟨ sym ass ⟩
+                                                            (π₂ ∙D ⟨ α , β ⟩) ∙D HMap H f
+                                                            ≅⟨ cong (λ x → x ∙D HMap H f) law2 ⟩
+                                                            β ∙D HMap H f ∎)) ⟩
+                                             ⟨ α , β ⟩ ∙D HMap H f ∎) })
+            (λ {_} {_} {_} {_} {_} → NatTEq (iext (λ _ → law1)) )
+            (λ {_} {_} {_} {_} {_} → NatTEq (iext (λ _ → law2)))
+            (λ { {f = natural α p₁} {natural β p₂} {natural γ p₃} x y →
+               NatTEq (iext (λ c → law3 (NatTEqApp x c) (NatTEqApp y c)))})
 
   funCoPro : ∀{a}{b}{c}{d}{C : Cat {a} {b}}{D : Cat {c} {d}} →
              Coproducts D → Coproducts (FunctorCat C D)

@@ -305,6 +305,31 @@ module ProductMorphisms {a}{b}{C : Cat {a}{b}}(p : Products C) where
        → Hom (A × C) (B × D)
   pair f g = ⟨ f ∙ π₁ , g ∙ π₂ ⟩
 
+  --AGREGADO por mi
+  pairLema : ∀{A B C D E}{f : Hom A B}{g : Hom C D}{h : Hom E A}{i : Hom E C}
+           → pair f g ∙ ⟨ h , i ⟩ ≅ ⟨ f ∙ h , g ∙ i ⟩
+  pairLema {f = f} {g} {h} {i} = law3 (proof
+                                      π₁ ∙ pair f g ∙ ⟨ h , i ⟩
+                                      ≅⟨ sym ass ⟩
+                                      (π₁ ∙ pair f g) ∙ ⟨ h , i ⟩
+                                      ≅⟨ cong (λ x → x ∙ ⟨ h , i ⟩ ) law1 ⟩
+                                      (f ∙ π₁) ∙ ⟨ h , i ⟩
+                                      ≅⟨ ass ⟩
+                                      f ∙ π₁ ∙ ⟨ h , i ⟩
+                                      ≅⟨ cong (λ x → f ∙ x) law1 ⟩
+                                      f ∙ h ∎)
+                                      (proof
+                                        π₂ ∙ pair f g ∙ ⟨ h , i ⟩
+                                        ≅⟨ sym ass ⟩
+                                        (π₂ ∙ pair f g) ∙ ⟨ h , i ⟩
+                                        ≅⟨ cong (λ x → x ∙ ⟨ h , i ⟩ ) law2 ⟩
+                                        (g ∙ π₂) ∙ ⟨ h , i ⟩
+                                        ≅⟨ ass ⟩
+                                        g ∙ π₂ ∙ ⟨ h , i ⟩
+                                        ≅⟨ cong (λ x → g ∙ x) law2 ⟩
+                                        g ∙ i ∎)
+
+
   -- Probar las siguientes propiedades de pair
   -- MODIFICADO
   idpair : ∀{X Y} → pair (iden {X}) (iden {Y}) ≅ iden {X × Y}
