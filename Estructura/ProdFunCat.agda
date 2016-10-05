@@ -5,6 +5,7 @@ module ProdFunCat where
   open import Functors
   open import Functors.Cat
   open import Construcciones
+  open import Construcciones2
   open import Categories.Products
   open import Categories.Coproducts
   open import Naturals
@@ -56,7 +57,7 @@ module ProdFunCat where
                               HMap G (g ∙C f) ∙D π₂ ∎)))
 
 
-  -- Ejercicio Extra
+  -- Ejercicios Extra
   funPro : ∀{a}{b}{c}{d}{C : Cat {a} {b}}{D : Cat {c} {d}} →
            Products D → Products (FunctorCat C D)
   funPro {C = C} {D} p =
@@ -95,6 +96,28 @@ module ProdFunCat where
             (λ { {f = natural α p₁} {natural β p₂} {natural γ p₃} x y →
                NatTEq (iext (λ c → law3 (NatTEqApp x c) (NatTEqApp y c)))})
 
+
   funCoPro : ∀{a}{b}{c}{d}{C : Cat {a} {b}}{D : Cat {c} {d}} →
              Coproducts D → Coproducts (FunctorCat C D)
-  funCoPro = {!!}
+  funCoPro {C = C} {D} cop =
+    let proOp = CoproductProductDuality cop
+        proFunCat = funPro {C = C Op} proOp
+        open Products proFunCat
+    in coproduct (λ F G → Fop← ((Fop→ F) × (Fop→ G)))
+                 (λ {F} {G} → NatOp← (π₁ {Fop→ F} {Fop→ G}))
+                 (λ {F} {G} → NatOp← (π₂ {Fop→ F} {Fop→ G}))
+                 (λ {F} {G} {H} α β →
+                    NatOp← (⟨_,_⟩ {Fop→ F} {Fop→ G} {Fop→ H}
+                           (NatOp→ α) (NatOp→ β)))
+                 (λ {F} {G} {H} {α} {β} →
+                    NatTEq (iext (λ c → NatTEqApp (law1 {Fop→ F} {Fop→ G} {Fop→ H}
+                                                        {NatOp→ α} {NatOp→ β}) c)))
+                 (λ {F} {G} {H} {α} {β} →
+                   NatTEq (iext (λ c → NatTEqApp (law2 {Fop→ F} {Fop→ G} {Fop→ H}
+                                                        {NatOp→ α} {NatOp→ β}) c)))
+                 (λ {F} {G} {H} {α} {β} {γ} x y →
+                   NatTEq (iext (λ c → NatTEqApp (law3 {Fop→ F} {Fop→ G} {Fop→ H}
+                                                       {NatOp→ α} {NatOp→ β} {NatOp→ γ}
+                                                       (NatTEq (iext (λ a → NatTEqApp x a)))
+                                                       (NatTEq (iext (λ a → NatTEqApp y a))))
+                                                 c)))

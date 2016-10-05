@@ -31,13 +31,20 @@ NatTEq2 {α = natural cmp _} {natural .cmp _} refl refl refl =
   cong (natural cmp) (iext λ _ → iext λ _ → iext λ _ → ir _ _)
 
 
---AGREGADO por mi
+--AGREGADOS por mi
+NatOp← : ∀{a b c d}{C : Cat {a} {b}}{D : Cat {c} {d}}
+        {F G : Fun (C Op) (D Op)} → NatT F G → NatT (Fop← G) (Fop← F)
+NatOp← {F = F} {G} (natural cmp nat) = natural cmp (sym nat)
+
+NatOp→ : ∀{a b c d}{C : Cat {a} {b}}{D : Cat {c} {d}}
+        {F G : Fun C D} → NatT F G → NatT (Fop→ G) (Fop→ F)
+NatOp→ {F = F} {G} (natural cmp nat) = natural cmp (sym nat)
+
 NatTEqApp : ∀{a b c d}{C : Cat {a} {b}}{D : Cat {c} {d}}{F G : Fun C D}
             {α β : NatT F G} →
             α ≅ β → (X : Cat.Obj C) →
             NatT.cmp α {X} ≅ NatT.cmp β {X}
 NatTEqApp refl x = refl
-
 
 --------------------------------------------------
 -- la identidad es una transformación natural

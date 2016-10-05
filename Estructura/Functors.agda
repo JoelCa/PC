@@ -69,8 +69,15 @@ Functor-Eq {F = functor fo fh _ _} {functor .fo .fh _ _} refl refl =
 
 
 --------------------------------------------------
-
-Fop : ∀{a b c d}{C : Cat {a}{b}}{ D : Cat {c} {d}}
+--Modificado por mi
+Fop→ : ∀{a b c d}{C : Cat {a}{b}}{ D : Cat {c} {d}}
       → (F : Fun C D)
       → Fun (C Op) (D Op)
-Fop (functor OMap HMap fid fcomp) = functor OMap HMap fid fcomp
+Fop→ (functor OMap HMap fid fcomp) = functor OMap HMap fid fcomp
+
+--Agregado por mi
+Fop← : ∀{a b c d}{C : Cat {a}{b}}{ D : Cat {c} {d}} → (F : Fun (C Op) (D Op)) →  Fun C D
+Fop← (functor OMap HMap fid fcomp) = functor OMap HMap fid fcomp 
+
+
+
