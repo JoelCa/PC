@@ -1,4 +1,3 @@
-
 open import Categories
 open import Functors
 
@@ -149,9 +148,31 @@ fold {X} f = homo-base (init-homo {falgebra X f})
 open import Categories.Iso
 
 lemma : comp-homo α-homo init-homo ≅ iden-homo
-lemma = {!!}
+lemma = proof
+        comp-homo α-homo init-homo
+        ≅⟨ sym univ ⟩
+        init-homo
+        ≅⟨ univ ⟩
+        iden-homo ∎
+
+
+homomorphismEqApp : {x y : F-algebra}
+                  → {h k : (F-homomorphism) x y}
+                  → h ≅ k
+                  → homo-base h ≅ homo-base k
+homomorphismEqApp refl = refl
+
 
 L : Iso F-AlgebraCat α-homo
-L = {!!}
-
-
+L = iso init-homo
+        lemma
+        (homomorphismEq (proof
+                        homo-base init-homo ∙ α
+                        ≅⟨ homo-prop init-homo ⟩
+                        HMap α ∙ HMap (homo-base init-homo)
+                        ≅⟨ sym fcomp ⟩
+                        HMap (α ∙ homo-base init-homo)
+                        ≅⟨ cong HMap (homomorphismEqApp lemma) ⟩
+                        HMap iden
+                        ≅⟨ fid ⟩
+                        iden ∎))
