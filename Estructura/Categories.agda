@@ -13,7 +13,19 @@ record Cat {a b} : Set (lsuc (a ⊔ b)) where
         idr  : ∀{X Y}{f : Hom X Y} → f ∙ iden ≅ f
         ass  : ∀{W X Y Z}{f : Hom Y Z}{g : Hom X Y}{h : Hom W X} → 
                (f ∙ g) ∙ h ≅  f ∙ (g ∙ h)
-               
+
+
+  congl : ∀{X Y Z}{f g : Hom X Y}{h : Hom Z X} → (p : f ≅ g) → f ∙ h ≅ g ∙ h
+  congl p = cong₂ _∙_ p refl
+
+  congr : ∀{X Y Z}{ f g : Hom X Y}{h : Hom Y Z} → (p : f ≅ g) → h ∙ f ≅ h ∙ g
+  congr p = cong₂ _∙_ refl p
+
+  conglr : ∀{X Y Z}{ f g : Hom X Y}{h k : Hom Y Z} → (p : h ≅ k) → (q : f ≅ g) → h ∙ f ≅ k ∙ g
+  conglr p q = cong₂ _∙_ p q
+
+
+
 open Cat
 
 --------------------------------------------------
