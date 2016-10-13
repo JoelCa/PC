@@ -54,9 +54,9 @@ module Nat where
   de OnePlus es igual a ℕ
 -}
 
-  lemaNat₀ : ℕ → μF
-  lemaNat₀ zero = 0N
-  lemaNat₀ (suc x) = sucN (lemaNat₀ x)
+  NatμF : ℕ → μF
+  NatμF zero = 0N
+  NatμF (suc x) = sucN (NatμF x)
 
   h = fold {ℕ} ([ (λ x → 0) , suc ])
 
@@ -77,17 +77,55 @@ module Nat where
            ≅⟨ refl ⟩
            [ (λ x → 0) , suc ∘ h ] ∎
 
-  -- lemaNatId₀ : {n : ℕ} → (fold [ (λ x → 0) , suc ] ∘ lemaNat₀) n ≅ id n
-  -- lemaNatId₀ {zero} = proof
-  --                     fold [ (λ x → 0) , suc ] 0N
-  --                     ≅⟨ {!!} ⟩
-  --                     {!!} ≅⟨ {!!} ⟩ {!!} ≅⟨ {!!} ⟩ {!!} ∎
-  -- lemaNatId₀ {suc n} = {!!}
+  
+  open import Categories
+
+  equalPair : ∀{A B C}{f h : Cat.Hom Sets A B}{g i : Cat.Hom Sets C B}
+            → [ f , g ] ≅ [ h , i ] → (f ≅ h) × (g ≅ i)
+  equalPair {f = f} {h} {g} {i} x =
+    (proof
+      f
+      ≅⟨ sym (Coproducts.law1 SetsHasCoproducts {f = f} {g}) ⟩ 
+      [ f , g ] ∘ inl
+      ≅⟨ cong (λ x₁ → x₁ ∘ inl) x ⟩
+      [ h , i ] ∘ inl
+      ≅⟨ sym (Coproducts.law1 SetsHasCoproducts {f = h} {i}) ⟩
+      h ∎) ,
+    (proof
+      g
+      ≅⟨ sym (Coproducts.law2 SetsHasCoproducts {f = f} {g}) ⟩ 
+      [ f , g ] ∘ inr
+      ≅⟨ cong (λ x₁ → x₁ ∘ inr) x ⟩
+      [ h , i ] ∘ inr
+      ≅⟨ sym (Coproducts.law2 SetsHasCoproducts {f = h} {i}) ⟩
+      i ∎)
+
+
+  lemaNatId₀ : {n : ℕ} → (h ∘ NatμF) n ≅ n
+  lemaNatId₀ {zero} = proof
+                      h 0N
+                      ≅⟨ cong-app (fst (equalPair lemazo)) _ ⟩
+                      0 ∎
+  lemaNatId₀ {suc n} = proof 
+                       h (sucN (NatμF n)) 
+                       ≅⟨ cong-app (snd (equalPair lemazo)) (NatμF n) ⟩ 
+                       suc (h (NatμF n))
+                       ≅⟨ cong (λ x → suc x) (lemaNatId₀ {n}) ⟩
+                       suc n ∎
+
+  
+  natAlgebra = falgebra ℕ [ (λ x → 0) , suc ]
+  
+  NatμFIsHomo : F-homomorphism natAlgebra inF
+  NatμFIsHomo = homo NatμF (ext (λ { (Inl x) → refl ; (Inr x) → refl }))
   
 
+  lemaNatId₁ : { u : μF} → (NatμF ∘ h) u ≅ u
+  lemaNatId₁ {u} = {!!}
+
   lemaNat : Iso Sets (fold {ℕ} ([ (λ x → 0) , suc ]))
-  lemaNat = iso lemaNat₀
-                (ext (λ n → {!!}))
+  lemaNat = iso NatμF
+                (ext (λ n → lemaNatId₀))
                 {!!}
 
 --------------------------------------------------
