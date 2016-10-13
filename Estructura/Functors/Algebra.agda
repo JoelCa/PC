@@ -141,6 +141,16 @@ fold {X} f = homo-base (init-homo {falgebra X f})
 α-homo : F-homomorphism (mapF inF) inF
 α-homo = homo α refl
 
+--AGREGADO por mi
+iden-homo-inF-inF : (f : (F-homomorphism) inF inF) → f ≅ iden-homo {inF}
+iden-homo-inF-inF f = proof
+                      f
+                      ≅⟨ sym univ ⟩
+                      init-homo
+                      ≅⟨ univ ⟩
+                      iden-homo ∎
+
+
 --------------------------------------------------
 {- Lema de Lambek -}
 {- El álgebra inicial es un isomorfismo -}

@@ -27,7 +27,6 @@ open import Functors.Coproduct (SetsHasCoproducts {lzero})
  *No* definir functores usando el constructor de funtores.
   -}
 
---Esto está bien?
 -- Nat X = 1 + X
 Nat : Fun Sets Sets
 Nat = (K ⊤) +F IdF
@@ -40,8 +39,6 @@ module Nat where
   open F-algebra
 
 
-  --están bien?
-  
   -- definir constructores
   0N : μF
   0N = (α ∘ inl) _
@@ -116,17 +113,17 @@ module Nat where
   
   natAlgebra = falgebra ℕ [ (λ x → 0) , suc ]
   
-  NatμFIsHomo : F-homomorphism natAlgebra inF
-  NatμFIsHomo = homo NatμF (ext (λ { (Inl x) → refl ; (Inr x) → refl }))
-  
+  Nat→μFHomo : F-homomorphism natAlgebra inF
+  Nat→μFHomo = homo NatμF (ext (λ { (Inl x) → refl ; (Inr x) → refl }))
 
-  lemaNatId₁ : { u : μF} → (NatμF ∘ h) u ≅ u
-  lemaNatId₁ {u} = {!!}
+  
+  lemaNatId₁ : (NatμF ∘ h) ≅ id
+  lemaNatId₁ = homomorphismEqApp (iden-homo-inF-inF (comp-homo Nat→μFHomo init-homo))
 
   lemaNat : Iso Sets (fold {ℕ} ([ (λ x → 0) , suc ]))
   lemaNat = iso NatμF
                 (ext (λ n → lemaNatId₀))
-                {!!}
+                lemaNatId₁
 
 --------------------------------------------------
 {- Definir un functor cuya algebra inicial sea las listas.
