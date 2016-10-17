@@ -9,6 +9,22 @@ open import Library hiding (_+_)
 open Cat C
 open Coproducts c
 
+dist-izq : ∀{A B C E}{f : Hom A B} {g : Hom C B} {h : Hom B E}
+           →  h ∙ [ f , g ] ≅ [ h ∙ f , h ∙ g ]
+dist-izq {f = f} {g} {h} = law3 (proof
+                                (h ∙ [ f , g ]) ∙ inl
+                                ≅⟨ ass ⟩
+                                h ∙ ([ f , g ] ∙ inl)
+                                ≅⟨ cong (λ x → h ∙ x) law1 ⟩
+                                h ∙ f ∎)
+                                (proof
+                                (h ∙ [ f , g ]) ∙ inr
+                                ≅⟨ ass ⟩
+                                h ∙ ([ f , g ] ∙ inr)
+                                ≅⟨ cong (λ x → h ∙ x) law2 ⟩
+                                h ∙ g ∎)
+
+
 copair : ∀{X Y Z W}(f : Hom X Z)(g : Hom Y W) → Hom (X + Y) (Z + W)
 copair f g = [ inl ∙ f , inr ∙ g ]
 
@@ -82,18 +98,3 @@ fusion-cop {f = f} {g} {h} {i} = law3 (proof
                                         ([ h , i ] ∙ inr) ∙ g 
                                         ≅⟨ cong (λ x → x ∙ g) law2 ⟩
                                         i ∙ g ∎)
-
-lema-cop : ∀{A B C E}{f : Hom A B} {g : Hom C B} {h : Hom B E}
-           →  h ∙ [ f , g ] ≅ [ h ∙ f , h ∙ g ]
-lema-cop {f = f} {g} {h} = law3 (proof
-                                (h ∙ [ f , g ]) ∙ inl
-                                ≅⟨ ass ⟩
-                                h ∙ ([ f , g ] ∙ inl)
-                                ≅⟨ cong (λ x → h ∙ x) law1 ⟩
-                                h ∙ f ∎)
-                                (proof
-                                (h ∙ [ f , g ]) ∙ inr
-                                ≅⟨ ass ⟩
-                                h ∙ ([ f , g ] ∙ inr)
-                                ≅⟨ cong (λ x → h ∙ x) law2 ⟩
-                                h ∙ g ∎)
