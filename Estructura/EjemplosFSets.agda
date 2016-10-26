@@ -221,26 +221,38 @@ module Listas (A : Set) where
   lemaListId₀ {[]} = cong-app foldPropL₀ _
   lemaListId₀ {x ∷ xs} = proof
                          foldList (consL (x , ListμF xs) )
-                         ≅⟨ {!cong-app foldPropL₁ (ListμF xs)!} ⟩
-                         {!!}
-                         ≅⟨ {!!} ⟩
-                         {!!}
-                         ≅⟨ {!!} ⟩
-                         {!!} ≅⟨ {!!} ⟩ {!!} ∎
-
-  -- lemaNatId₀ {suc n} = proof 
-  --                      foldNat (sucN (NatμF n)) 
-  --                      ≅⟨ cong-app foldProp₁ (NatμF n) ⟩ 
-  --                      suc (foldNat (NatμF n))
-  --                      ≅⟨ cong (λ x → suc x) (lemaNatId₀ {n}) ⟩
-  --                      suc n ∎
+                         ≅⟨ cong-app foldPropL₁ (x , ListμF xs) ⟩
+                         ((λ { (c , xs) → c ∷ xs }) ∘ pair id foldList) (x , ListμF xs)
+                         ≅⟨ refl ⟩
+                         ((λ { (c , xs) → c ∷ xs }) ∘ (λ { (a , b) → id a , foldList b }))
+                           ( x , ListμF xs)
+                         ≅⟨ refl ⟩
+                         x ∷  foldList (ListμF xs)
+                         ≅⟨ cong (λ y → x ∷ y) (lemaListId₀ {xs}) ⟩
+                         x ∷ xs ∎
 
 
+  listAlgebra = falgebra (List A) ([_,_] (λ x → []) (λ { (c , xs) → c ∷ xs }))
+
+  List→μFHomo : F-homomorphism listAlgebra inF
+  List→μFHomo = homo ListμF (ext (λ { (Inl x) → refl ; (Inr x) → refl }))
+
+  lemaListId₁ : (ListμF ∘ foldList) ≅ id
+  lemaListId₁ = homomorphismEqApp (iden-homo-inF-inF (comp-homo List→μFHomo init-homo))
+
+  lemaList : Iso Sets (fold {List A} ([_,_] (λ x → []) (λ { (c , xs) → c ∷ xs })))
+  lemaList = iso ListμF
+                 (ext (λ _ → lemaListId₀))
+                 lemaListId₁
 
 {-
   Definir la función length para listas
 -}
 
+  lengthList : List A → ℕ
+  lengthList [] = 0
+  lengthList (x ∷ xs) = suc (lengthList xs)
+
   length : μF → ℕ
-  length = {!!}
+  length = lengthList ∘ (fold {List A} ([_,_] (λ x → []) (λ { (c , xs) → c ∷ xs })))
 
