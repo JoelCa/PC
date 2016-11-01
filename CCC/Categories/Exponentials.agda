@@ -2,11 +2,9 @@ open import Library hiding (_×_)
 open import Categories
 open import Categories.Products
 
-
 module Categories.Exponentials {a}{b}{C : Cat {a}{b}}
-                               (hasProducts : Products C)
-                               
-       where
+                               (hasProducts : Products C)                               
+                               where
 
 
 record Exponentials{l}{m}(C : Cat {l}{m})(hasProducts : Products C) : Set (l ⊔ m)
