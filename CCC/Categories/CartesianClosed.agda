@@ -31,3 +31,36 @@ record CCC : Set (a ⊔ b) where
 
   map⇒ : ∀{X Y Z} → Hom X Z → Hom (Y ⇒ X) (Y ⇒ Z)
   map⇒ f = curry (f ∙ apply)
+
+
+curry-prop₁ : ∀{X X' Y Z} → {g : Hom X' X}{f : Hom (X × Y) Z} →
+               curry f ∙ g ≅ curry (f ∙ pair g iden)
+  curry-prop₁ {g = g} {f} = proof curry f ∙ g
+                           ≅⟨ sym idl ⟩
+                           iden ∙ curry f ∙ g
+                           ≅⟨ cong (λ x → x ∙ curry f ∙ g) (sym lawcurry2) ⟩
+                           curry (uncurry iden) ∙  curry f ∙ g
+                           ≅⟨ cong (λ x → curry x ∙ curry f ∙ g) (sym idl) ⟩
+                           curry (iden ∙ uncurry iden) ∙  curry f ∙ g
+                           ≅⟨ nat-curry ⟩
+                           curry (iden ∙ f ∙ pair g iden)
+                           ≅⟨ cong (λ x → curry x) idl ⟩
+                           curry (f ∙ pair g iden) ∎
+
+
+  curry-prop₂ : ∀{X Y Z} {f : Hom X (Y ⇒ Z)} → f ≅ curry (apply ∙ pair f iden)
+  curry-prop₂ {f = f} = sym (proof curry (apply ∙ pair f iden)
+                            ≅⟨ sym curry-prop₁ ⟩
+                            curry apply ∙ f
+                            ≅⟨ cong (λ x → x ∙ f) lawcurry2 ⟩
+                            iden ∙ f
+                            ≅⟨ idl ⟩
+                            f ∎)
+
+
+  uncurry-prop : ∀{X Y Z} {f : Hom X (Y ⇒ Z)} → uncurry f ≅ apply ∙ pair f iden
+  uncurry-prop {f = f} = proof uncurry f
+                         ≅⟨ cong (λ x → uncurry x) curry-prop₂ ⟩
+                         uncurry (curry (apply ∙ pair f iden))
+                         ≅⟨ lawcurry1 ⟩
+                         apply ∙ pair f iden ∎
