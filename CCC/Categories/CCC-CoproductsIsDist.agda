@@ -48,29 +48,25 @@ distri₁ {X} {Y} {Z} = proof distr {X} {Y} {Z} ∙ undistr
                             apply ∙ [ ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl ,
                                       ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inr ] ∎
 
-distri₂ : [ ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl , ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inr ] ≅ [ ⟨ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , ⟨ curry (inr ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
+distri₂ : ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl ≅ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂
 distri₂ = proof
-          [ ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl ,
-            ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inr ]
-          ≅⟨ cong₂ (λ x y → [ x , y ]) fusion fusion ⟩
-          [ ⟨ (h ∙ π₂) ∙ pair iden  inl , π₁ ∙ pair iden  inl ⟩ ,
-            ⟨ (h ∙ π₂) ∙ pair iden  inr , π₁ ∙ pair iden  inr ⟩ ]
-          ≅⟨ cong₂ (λ x y → [ ⟨ x , π₁ ∙ pair iden  inl ⟩ ,
-                              ⟨ y , π₁ ∙ pair iden  inr ⟩ ]) ass ass ⟩
-          [ ⟨ h ∙ (π₂ ∙ pair iden  inl) ,  π₁ ∙ pair iden  inl ⟩ ,
-            ⟨ h ∙ (π₂ ∙ pair iden  inr) , π₁ ∙ pair iden  inr ⟩ ]
+          ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl
+          ≅⟨ fusion ⟩
+          ⟨ (h ∙ π₂) ∙ pair iden  inl , π₁ ∙ pair iden  inl ⟩
+          ≅⟨ cong (λ x → ⟨ x , π₁ ∙ pair iden  inl ⟩ ass ⟩
+          ⟨ h ∙ (π₂ ∙ pair iden  inl) ,  π₁ ∙ pair iden  inl ⟩
           ≅⟨ cong₂ (λ x y → [ ⟨ h ∙ x ,  π₁ ∙ pair iden  inl ⟩ ,
                               ⟨ h ∙ y ,  π₁ ∙ pair iden  inr ⟩ ]) π₂-pair2 π₂-pair2 ⟩
           [ ⟨ h ∙ (inl ∙ π₂) , π₁ ∙ pair iden  inl ⟩ , 
             ⟨ h ∙ (inr ∙ π₂) , π₁ ∙ pair iden  inr ⟩ ]
           ≅⟨ cong₂ (λ x y →  [ ⟨ x , π₁ ∙ pair iden  inl ⟩ ,
-                                       ⟨ y , π₁ ∙ pair iden  inr ⟩ ]) (sym ass) (sym ass) ⟩
-          apply ∙ [ ⟨ (h ∙ inl) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
-                    ⟨ (h ∙ inr) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
-          ≅⟨ cong₂ (λ x y → apply ∙ [ ⟨ x ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
-                                      ⟨ y ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]) co-law1 co-law2 ⟩
-          apply ∙ [ ⟨ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
-                            ⟨ curry (inr ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ] ∎
+                                ⟨ y , π₁ ∙ pair iden  inr ⟩ ]) (sym ass) (sym ass) ⟩
+          [ ⟨ (h ∙ inl) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
+            ⟨ (h ∙ inr) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
+          ≅⟨ cong₂ (λ x y → [ ⟨ x ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
+                              ⟨ y ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]) co-law1 co-law2 ⟩
+          [ ⟨ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
+            ⟨ curry (inr ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ] ∎
 
 
 distri-final : ∀{X Y Z} → (distr {X} {Y} {Z}) ∙ undistr ≅ iden {X × Y + X × Z}
