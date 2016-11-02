@@ -33,7 +33,7 @@ record CCC : Set (a ⊔ b) where
   map⇒ f = curry (f ∙ apply)
 
 
-curry-prop₁ : ∀{X X' Y Z} → {g : Hom X' X}{f : Hom (X × Y) Z} →
+  curry-prop₁ : ∀{X X' Y Z} → {g : Hom X' X}{f : Hom (X × Y) Z} →
                curry f ∙ g ≅ curry (f ∙ pair g iden)
   curry-prop₁ {g = g} {f} = proof curry f ∙ g
                            ≅⟨ sym idl ⟩
