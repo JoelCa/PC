@@ -9,12 +9,16 @@ open import Library hiding (_×_)
 open Cat C
 open Products p
 
-π₁-pair : ∀{A B C}{f : Hom A C}{g : Hom B C} → π₁ ∙ pair f g ≅ f ∙ π₁ {A} {B}
+π₁-pair : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₁ ∙ pair f g ≅ f ∙ π₁ {A} {B}
 π₁-pair = law1
 
 
 π₂-pair : ∀{A B C}{f : Hom A C}{g : Hom B C} → π₂ ∙ pair f g  ≅ g ∙ π₂ {A} {B}
 π₂-pair = law2
+
+π₂-pair2 : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₂ ∙ pair f g  ≅ g ∙ π₂ {A} {B}
+π₂-pair2 = law2
+
 
 
 iden-pair : ∀{A B} →  pair (iden {A}) (iden {B}) ≅ iden {A × B}

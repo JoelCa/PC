@@ -57,10 +57,16 @@ record CCC : Set (a ⊔ b) where
                             ≅⟨ idl ⟩
                             f ∎)
 
-
   uncurry-prop : ∀{X Y Z} {f : Hom X (Y ⇒ Z)} → uncurry f ≅ apply ∙ pair f iden
   uncurry-prop {f = f} = proof uncurry f
                          ≅⟨ cong (λ x → uncurry x) curry-prop₂ ⟩
                          uncurry (curry (apply ∙ pair f iden))
                          ≅⟨ lawcurry1 ⟩
                          apply ∙ pair f iden ∎
+
+  curry-prop₃ : ∀{X Y Z} {f : Hom (X × Y) Z} → f ≅ apply ∙ pair (curry f) iden
+  curry-prop₃ {f = f} = sym (proof apply ∙ pair (curry f) iden 
+                            ≅⟨ sym uncurry-prop ⟩ 
+                            uncurry (curry f) 
+                            ≅⟨ lawcurry1 ⟩
+                            f ∎)
