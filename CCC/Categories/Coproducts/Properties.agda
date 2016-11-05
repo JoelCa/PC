@@ -9,14 +9,19 @@ open import Library hiding (_+_)
 open Cat C
 open Coproducts c
 
-inl-cop : ∀{A B C}{f : Hom C A}{g : Hom C B} → copair f g ∙ inl ≅ inl {A} {B} ∙ f
+--MODIFICADO
+inl-cop : ∀{A B C D}{f : Hom C A}{g : Hom D B} → copair f g ∙ inl ≅ inl {A} {B} ∙ f
 inl-cop = law1
 
-inr-cop : ∀{A B C}{f : Hom C A}{g : Hom C B} → copair f g ∙ inr ≅ inr {A} {B} ∙ g
+--MODIFICADO
+inr-cop : ∀{A B C D}{f : Hom C A}{g : Hom D B} → copair f g ∙ inr ≅ inr {A} {B} ∙ g
 inr-cop = law2
 
 iden-cop : ∀{A B} →  copair (iden {A}) (iden {B}) ≅ iden {A + B}
 iden-cop = sym (law3 (trans idl (sym idr)) (trans idl (sym idr)))
+
+copro-iden : ∀{A B} → [ inl {A} {B} , inr ] ≅ iden
+copro-iden = sym (law3 idl idl)
 
 fusion : ∀{A B C D}{f : Hom A C}{g : Hom B C}{h : Hom C D}
         → h ∙ [ f , g ] ≅ [ h ∙ f , h ∙ g ]

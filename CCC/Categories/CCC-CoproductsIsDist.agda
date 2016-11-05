@@ -18,105 +18,95 @@ module Categories.CCC-CoproductsIsDist {a}{b}{C : Cat {a}{b}}
 open import Library hiding (_×_ ; _+_ ; curry ; uncurry)
 open import Categories.Distributive hasProducts hasCoproducts I hasInitial
 
-open Cat C
 open Products hasProducts
 open Coproducts hasCoproducts renaming (law1 to co-law1 ; law2 to co-law2) 
 open import Categories.Coproducts.Properties hasCoproducts renaming (fusion to co-fusion)
 open import Categories.Products.Properties hasProducts
-open CCC isCCC
-
-distr : ∀{X Y Z} → Hom (X × (Y + Z)) (X × Y + X × Z)
-distr {X} {Y} {Z} = uncurry ([ curry (inl ∙ ⟨ π₂ , π₁ ⟩) , curry (inr ∙ ⟨ π₂ , π₁ ⟩) ])
-                          ∙ ⟨ π₂ , π₁ ⟩
+open Cat C
+open CCC hasProducts T hasTerminal isCCC
 
 h : ∀{X Y Z} → Hom (Y + Z) (X ⇒ (X × Y + X × Z))
 h = [ curry (inl ∙ ⟨ π₂ , π₁ ⟩) , curry (inr ∙ ⟨ π₂ , π₁ ⟩) ]
 
-distri₁ : ∀{X Y Z} → (distr {X} {Y} {Z}) ∙ undistr ≅ apply ∙ [ ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl , ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inr ]
-distri₁ {X} {Y} {Z} = proof distr {X} {Y} {Z} ∙ undistr
-                            ≅⟨ cong (λ x → (x ∙ ⟨ π₂ , π₁ ⟩) ∙ undistr) uncurry-prop ⟩
-                            ((apply ∙ pair h iden) ∙ ⟨ π₂ , π₁ ⟩) ∙ undistr
-                            ≅⟨ cong (λ x → x ∙ undistr) ass ⟩
-                            (apply ∙ (pair h iden ∙ ⟨ π₂ , π₁ ⟩)) ∙ undistr
-                            ≅⟨ cong (λ x → (apply ∙ x) ∙ undistr) fusion-pair ⟩
-                            (apply ∙ ⟨ h ∙ π₂ , iden ∙ π₁ ⟩) ∙ undistr
-                            ≅⟨ cong (λ x → (apply ∙ ⟨ h ∙ π₂ , x ⟩) ∙ undistr) idl ⟩
-                            (apply ∙ ⟨ h ∙ π₂ , π₁ ⟩) ∙ undistr
-                            ≅⟨ ass ⟩
-                            apply ∙ (⟨ h ∙ π₂ , π₁ ⟩ ∙ undistr)
-                            ≅⟨ cong (λ x → apply ∙ x) co-fusion ⟩
-                            apply ∙ [ ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl ,
-                                      ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inr ] ∎
-
-distri₂ : ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl ≅ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂
-distri₂ = proof
-          ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl
-          ≅⟨ fusion ⟩
-          ⟨ (h ∙ π₂) ∙ pair iden  inl , π₁ ∙ pair iden  inl ⟩
-          ≅⟨ cong (λ x → ⟨ x , π₁ ∙ pair iden  inl ⟩ ass ⟩
-          ⟨ h ∙ (π₂ ∙ pair iden  inl) ,  π₁ ∙ pair iden  inl ⟩
-          ≅⟨ cong₂ (λ x y → [ ⟨ h ∙ x ,  π₁ ∙ pair iden  inl ⟩ ,
-                              ⟨ h ∙ y ,  π₁ ∙ pair iden  inr ⟩ ]) π₂-pair2 π₂-pair2 ⟩
-          [ ⟨ h ∙ (inl ∙ π₂) , π₁ ∙ pair iden  inl ⟩ , 
-            ⟨ h ∙ (inr ∙ π₂) , π₁ ∙ pair iden  inr ⟩ ]
-          ≅⟨ cong₂ (λ x y →  [ ⟨ x , π₁ ∙ pair iden  inl ⟩ ,
-                                ⟨ y , π₁ ∙ pair iden  inr ⟩ ]) (sym ass) (sym ass) ⟩
-          [ ⟨ (h ∙ inl) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
-            ⟨ (h ∙ inr) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
-          ≅⟨ cong₂ (λ x y → [ ⟨ x ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
-                              ⟨ y ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]) co-law1 co-law2 ⟩
-          [ ⟨ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
-            ⟨ curry (inr ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ] ∎
+distr : ∀{X Y Z} → Hom (X × (Y + Z)) (X × Y + X × Z)
+distr {X} {Y} {Z} = uncurry h ∙ ⟨ π₂ , π₁ ⟩
 
 
-distri-final : ∀{X Y Z} → (distr {X} {Y} {Z}) ∙ undistr ≅ iden {X × Y + X × Z}
-distri-final {X} {Y} {Z} = {!!}
--- proof distr {X} {Y} {Z} {C} ∙ undistr
---                               ≅⟨ cong (λ x → (x ∙ ⟨ π₂ , π₁ ⟩) ∙ undistr) uncurry-prop ⟩
---                               ((apply ∙ pair h iden) ∙ ⟨ π₂ , π₁ ⟩) ∙ undistr
---                               ≅⟨ cong (λ x → x ∙ undistr) ass ⟩
---                               (apply ∙ (pair h iden ∙ ⟨ π₂ , π₁ ⟩)) ∙ undistr
---                               ≅⟨ cong (λ x → (apply ∙ x) ∙ undistr) fusion-pair ⟩
---                               (apply ∙ ⟨ h ∙ π₂ , iden ∙ π₁ ⟩) ∙ undistr
---                               ≅⟨ cong (λ x → (apply ∙ ⟨ h ∙ π₂ , x ⟩) ∙ undistr) idl ⟩
---                               (apply ∙ ⟨ h ∙ π₂ , π₁ ⟩) ∙ undistr
---                               ≅⟨ ass ⟩
---                               apply ∙ (⟨ h ∙ π₂ , π₁ ⟩ ∙ undistr)
---                               ≅⟨ congr co-fusion ⟩
---                               apply ∙ [ ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inl ,
---                                         ⟨ h ∙ π₂ , π₁ ⟩ ∙ pair iden  inr ]
---                               ≅⟨ cong₂ (λ x y → apply ∙ [ x , y ]) fusion fusion ⟩
---                               apply ∙ [ ⟨ (h ∙ π₂) ∙ pair iden  inl , π₁ ∙ pair iden  inl ⟩ ,
---                                         ⟨ (h ∙ π₂) ∙ pair iden  inr , π₁ ∙ pair iden  inr ⟩ ]
---                               ≅⟨ cong₂ (λ x y → apply ∙ [ ⟨ x , π₁ ∙ pair iden  inl ⟩ ,
---                                                           ⟨ y , π₁ ∙ pair iden  inr ⟩ ]) ass ass ⟩
---                               apply ∙ [ ⟨ h ∙ (π₂ ∙ pair iden  inl) ,  π₁ ∙ pair iden  inl ⟩ ,
---                                         ⟨ h ∙ (π₂ ∙ pair iden  inr) , π₁ ∙ pair iden  inr ⟩ ]
---                               ≅⟨ cong₂ (λ x y → apply ∙ [ ⟨ h ∙ x ,  π₁ ∙ pair iden  inl ⟩ ,
---                                                           ⟨ h ∙ y ,  π₁ ∙ pair iden  inr ⟩ ]) π₂-pair2 π₂-pair2 ⟩
---                               apply ∙ [ ⟨ h ∙ (inl ∙ π₂) , π₁ ∙ pair iden  inl ⟩ , 
---                                         ⟨ h ∙ (inr ∙ π₂) , π₁ ∙ pair iden  inr ⟩ ]
--- -----------------------
---                               ≅⟨ cong₂ (λ x y →  apply ∙ [ ⟨ x , π₁ ∙ pair iden  inl ⟩ ,
---                                                            ⟨ y , π₁ ∙ pair iden  inr ⟩ ]) (sym ass) (sym ass) ⟩
---                               apply ∙ [ ⟨ (h ∙ inl) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
---                                         ⟨ (h ∙ inr) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
---                               ≅⟨ cong₂ (λ x y → apply ∙ [ ⟨ x ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
---                                                           ⟨ y ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]) co-law1 co-law2 ⟩
---                               apply ∙ [ ⟨ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , 
---                                         ⟨ curry (inr ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
---                               ≅⟨ cong₂ (λ x y → apply ∙ [ ⟨ curry (inl ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , x ⟩ , ⟨ curry (inr ∙ ⟨ π₂ , π₁ ⟩) ∙ π₂ , y ⟩ ]) {!!} {!!} ⟩
---                               {!!}
---                               ≅⟨ {!!} ⟩
---                               {!!}
---                               ≅⟨ {!!} ⟩
---                               {!!}
---                               ≅⟨ {!!} ⟩
---                               {!!}
---                               ≅⟨ {!!} ⟩                              
---                               {!!} ∎
+lema₁ : ∀{X X' Y Z W W'}{f : Hom X (Y ⇒ Z)}{g : Hom X' (Y ⇒ Z)}{h : Hom W (X + X')}
+       {e : Hom W (Y ⇒ Z)}
+       → ([ f , g ] ∙ h ≅ e)
+       → ((pair [ f , g ] iden) ∙ ⟨ π₂ , π₁ ⟩) ∙ pair iden h ≅
+         pair e iden ∙ ⟨ π₂ {W'} {W}, π₁ ⟩
+lema₁ {f = f} {g} {h} {e} prop = proof
+                                 ((pair [ f , g ] iden) ∙ ⟨ π₂ , π₁ ⟩) ∙ pair iden h
+                                 ≅⟨ ass ⟩
+                                 (pair [ f , g ] iden) ∙ ⟨ π₂ , π₁ ⟩ ∙ pair iden h
+                                 ≅⟨ cong (λ x → pair [ f , g ] iden ∙ x) swap-pair ⟩
+                                 pair [ f , g ] iden ∙ (pair h iden ∙ ⟨ π₂ , π₁ ⟩)
+                                 ≅⟨ sym ass ⟩
+                                 (pair [ f , g ] iden ∙ pair h iden) ∙ ⟨ π₂ , π₁ ⟩
+                                 ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) (sym comp-pair) ⟩
+                                 pair ([ f , g ] ∙ h) (iden ∙ iden) ∙ ⟨ π₂ , π₁ ⟩
+                                 ≅⟨ cong₂ (λ x y → pair x y ∙ ⟨ π₂ , π₁ ⟩) prop idl ⟩
+                                 pair e iden ∙ ⟨ π₂ , π₁ ⟩ ∎
 
---apply ∙ [ ⟨ x ∙ π₂ , π₁ ∙ pair iden  inl ⟩ , ⟨ y ∙ π₂ , π₁ ∙ pair iden  inr ⟩ ]
+lema₂ : ∀{X Y Z Z'}{f : Hom Z Z'}{g : Hom (X × Y) Z}{h : Hom Z (X × Y)}
+       → g ∙ h ≅ iden
+       → apply ∙ ((pair (curry (f ∙ g)) iden) ∙ h) ≅ f
+lema₂ {f = f} {g} {h} prop = proof
+                               apply ∙ ((pair (curry (f ∙ g)) iden) ∙ h)
+                               ≅⟨ sym ass ⟩
+                               (apply ∙ (pair (curry (f ∙ g)) iden)) ∙ h
+                               ≅⟨ cong (λ x → x ∙ h) curry-prop₃ ⟩
+                               (f ∙ g) ∙ h
+                               ≅⟨ ass ⟩
+                               f ∙ (g ∙ h)
+                               ≅⟨ cong (λ x → f ∙ x) prop ⟩
+                               f ∙ iden
+                               ≅⟨ idr ⟩
+                               f ∎
+
+
+
+lema₃ : ∀{X X' Y Z}{f : Hom X (Y ⇒ Z)}{g : Hom (Y × X') Z}{h : Hom X' X}
+       → (f ∙ h ≅ curry (g ∙ ⟨ π₂ , π₁ ⟩))
+       → (uncurry f ∙ ⟨ π₂ , π₁ ⟩) ∙ pair iden h ≅ g
+lema₃ {f = f} {g} {h} prop = proof
+                               (uncurry f ∙ ⟨ π₂ , π₁ ⟩) ∙ pair iden h
+                               ≅⟨ ass ⟩
+                               uncurry f ∙ (⟨ π₂ , π₁ ⟩ ∙ pair iden h)
+                               ≅⟨ cong (λ x → uncurry f ∙ x) swap-pair ⟩
+                               uncurry f ∙ (pair h iden ∙ ⟨ π₂ , π₁ ⟩)
+                               ≅⟨ sym ass ⟩
+                               (uncurry f ∙ pair h iden) ∙ ⟨ π₂ , π₁ ⟩
+                               ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) uncurry-prop₂ ⟩
+                               (apply ∙ pair (f ∙ h) iden) ∙ ⟨ π₂ , π₁ ⟩
+                               ≅⟨ cong (λ x → (apply ∙ pair x iden) ∙ ⟨ π₂ , π₁ ⟩)
+                                       prop ⟩
+                               (apply ∙ pair (curry (g ∙ ⟨ π₂ , π₁ ⟩)) iden) ∙ ⟨ π₂ , π₁ ⟩
+                               ≅⟨ cong (λ x → x ∙ ⟨ π₂ , π₁ ⟩) curry-prop₃ ⟩
+                               (g ∙ ⟨ π₂ , π₁ ⟩) ∙ ⟨ π₂ , π₁ ⟩
+                               ≅⟨ ass ⟩
+                               g ∙ (⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩)
+                               ≅⟨ cong (λ x → g ∙ x) double-swap ⟩
+                               g ∙ iden
+                               ≅⟨ idr ⟩
+                               g ∎
+
+
+--NO esta congr
+distr-undistr : ∀{X Y Z} → (distr {X} {Y} {Z}) ∙ undistr ≅ iden {X × Y + X × Z}
+distr-undistr {X} {Y} {Z} = proof
+                              distr ∙ undistr
+                              ≅⟨ co-fusion ⟩
+                              [ (uncurry h ∙ ⟨ π₂ , π₁ ⟩) ∙ pair iden inl ,
+                                 (uncurry h ∙ ⟨ π₂ , π₁ ⟩) ∙ pair iden inr ]
+                              ≅⟨ cong₂ (λ x y → [ x , y ]) (lema₃ co-law1) (lema₃ co-law2) ⟩
+                              [ inl , inr ]
+                              ≅⟨ copro-iden ⟩
+                              iden ∎
+
+
 
 isDist : Distributive 
 isDist = record { distribute = λ {X Y Z} →
@@ -124,4 +114,3 @@ isDist = record { distribute = λ {X Y Z} →
                                      {!!} 
                                      {!!} ; 
                   nullify = {!!} }
-

@@ -9,21 +9,20 @@ open import Library hiding (_×_)
 open Cat C
 open Products p
 
+--MODIFICADO
 π₁-pair : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₁ ∙ pair f g ≅ f ∙ π₁ {A} {B}
 π₁-pair = law1
 
-
-π₂-pair : ∀{A B C}{f : Hom A C}{g : Hom B C} → π₂ ∙ pair f g  ≅ g ∙ π₂ {A} {B}
+--MODIFICADO
+π₂-pair : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₂ ∙ pair f g  ≅ g ∙ π₂ {A} {B}
 π₂-pair = law2
-
-π₂-pair2 : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₂ ∙ pair f g  ≅ g ∙ π₂ {A} {B}
-π₂-pair2 = law2
-
 
 
 iden-pair : ∀{A B} →  pair (iden {A}) (iden {B}) ≅ iden {A × B}
 iden-pair = sym (law3 (trans idr (sym idl)) (trans idr (sym idl)))
 
+pro-iden : ∀{A B} → ⟨ π₁{A} {B} , π₂ ⟩ ≅ iden
+pro-iden = sym (law3 idr idr)
 
 fusion : ∀{A B C D}{f : Hom C A}{g : Hom C B}{h : Hom D C}
         → ⟨ f , g ⟩ ∙ h ≅  ⟨ f ∙  h , g ∙ h ⟩
@@ -54,6 +53,32 @@ fusion-pair {f = f}{g}{h}{i}= law3 (proof
                   g ∙ i
                 ∎)
 
+
+swap-pair : ∀{A B C D}{f : Hom A B}{g : Hom C D} →
+            ⟨ π₂ , π₁ ⟩ ∙ pair f g ≅ pair g f ∙ ⟨ π₂ , π₁ ⟩
+swap-pair {f = f} {g}= proof ⟨ π₂ , π₁ ⟩ ∙ pair f g
+                       ≅⟨ fusion ⟩
+                       ⟨ π₂ ∙ pair f g , π₁ ∙ pair f g ⟩
+                       ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) π₂-pair π₁-pair ⟩
+                       ⟨ g ∙ π₂ , f ∙ π₁ ⟩
+                       ≅⟨ cong₂ (λ x y →  ⟨ g ∙ x , f ∙ y ⟩) (sym law1) (sym law2) ⟩
+                       ⟨ g ∙ (π₁ ∙ ⟨ π₂ , π₁ ⟩) , f ∙ (π₂ ∙ ⟨ π₂ , π₁ ⟩) ⟩
+                       ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) (sym ass) (sym ass) ⟩
+                       ⟨ (g ∙ π₁) ∙ ⟨ π₂ , π₁ ⟩ , (f ∙ π₂) ∙ ⟨ π₂ , π₁ ⟩ ⟩
+                       ≅⟨ sym fusion ⟩
+                       pair g f ∙ ⟨ π₂ , π₁ ⟩ ∎
+
+double-swap : ∀{A B} → ⟨ π₂ {B} {A} , π₁ ⟩ ∙ ⟨ π₂ {A} {B} , π₁ ⟩ ≅ iden
+double-swap = proof
+              ⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩
+              ≅⟨ fusion ⟩
+              ⟨ π₂ ∙ ⟨ π₂ , π₁ ⟩ , π₁ ∙ ⟨ π₂ , π₁ ⟩ ⟩
+              ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) law2 law1 ⟩
+              ⟨ π₁ , π₂ ⟩
+              ≅⟨ pro-iden ⟩
+              iden ∎
+
+
 comp-pair :  ∀{A B C A' B' C'}{f : Hom B C}{g : Hom A B}{h : Hom B' C'}{i : Hom A' B'}
           → pair (f ∙ g) (h ∙ i) ≅  pair f h ∙ pair g i
 comp-pair {f = f}{g}{h}{i} = proof
@@ -63,4 +88,13 @@ comp-pair {f = f}{g}{h}{i} = proof
               ≅⟨ sym fusion-pair ⟩
                  pair f h ∙ pair g i
                ∎
+
+iden-comp-pair :  ∀{A B C D}{f : Hom B C}{g : Hom A B}
+                  → pair (f ∙ g) (iden {D}) ≅ pair f iden ∙ pair g iden
+iden-comp-pair {f = f} {g} = proof
+                             pair (f ∙ g) iden
+                             ≅⟨ cong (λ x → pair (f ∙ g) x) (sym idl) ⟩
+                             pair (f ∙ g) (iden ∙ iden)
+                             ≅⟨ comp-pair ⟩
+                             pair f iden ∙ pair g iden ∎
 
