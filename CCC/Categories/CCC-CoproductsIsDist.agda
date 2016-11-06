@@ -8,9 +8,9 @@ open import Categories.CartesianClosed
 module Categories.CCC-CoproductsIsDist {a}{b}{C : Cat {a}{b}}
                                        {T : Cat.Obj C}
                                        {I : Cat.Obj C}
-                                       (hasProducts : Products C)
+                                       {hasProducts : Products C}
+                                       {hasTerminal : Terminal C T}
                                        (hasCoproducts : Coproducts C)           
-                                       (hasTerminal : Terminal C T)
                                        (hasInitial : Initial C I)
                                        (isCCC : CCC hasProducts T hasTerminal)
                                        where
@@ -22,10 +22,12 @@ open Products hasProducts
 open Coproducts hasCoproducts renaming (law1 to co-law1 ; law2 to co-law2) 
 open import Categories.Coproducts.Properties hasCoproducts renaming (fusion to co-fusion)
 open import Categories.Products.Properties hasProducts
+open import Categories.CartesianClosed.Properties isCCC
 open Cat C
 open CCC hasProducts T hasTerminal isCCC
 open Initial hasInitial
 open ProductMorphisms hasProducts using (swap)
+
 
 h : ∀{X Y Z} → Hom (Y + Z) (X ⇒ (X × Y + X × Z))
 h = [ curry (inl ∙ swap) , curry (inr ∙ swap) ]
@@ -148,7 +150,6 @@ prop-null₁ = proof
                ≅⟨ double-swap ⟩
                iden ∎
 
-
 prop-null₂ : ∀{X} → inv-unnull ∙ unnull {X} ≅ iden {I}
 prop-null₂ = proof
              inv-unnull ∙ unnull
@@ -160,7 +161,7 @@ prop-null₂ = proof
 
 isDist : Distributive 
 isDist = record { distribute = λ {X Y Z} →
-                                 iso (distr {X} {Y} {Z})
+                                 iso distr
                                      undistr-distr 
                                      distr-undistr ; 
                   nullify = λ {X} →
