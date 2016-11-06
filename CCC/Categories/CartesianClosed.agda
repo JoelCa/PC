@@ -14,7 +14,9 @@ open import Library hiding (_×_;curry;uncurry;_+_)
 open Cat C
 open import Categories.Products
 open Products hasProducts
-open import Categories.Products.Properties hasProducts using (comp-pair ; iden-comp-pair)
+open import Categories.Products.Properties hasProducts using (comp-pair ;
+                                                             iden-comp-pair;
+                                                             iden-pair)
 
 
 record CCC : Set (a ⊔ b) where
@@ -34,6 +36,13 @@ record CCC : Set (a ⊔ b) where
   map⇒ : ∀{X Y Z} → Hom X Z → Hom (Y ⇒ X) (Y ⇒ Z)
   map⇒ f = curry (f ∙ apply)
 
+  map⇒iden : ∀{X Y} → map⇒ (iden {X}) ≅ iden {Y ⇒ X}
+  map⇒iden = proof
+             curry (iden ∙ apply)
+             ≅⟨ cong (λ x → curry x) idl ⟩
+             curry apply
+             ≅⟨ lawcurry2 ⟩
+             iden ∎
 
   curry-prop₁ : ∀{X X' Y Z} → {g : Hom X' X}{f : Hom (X × Y) Z} →
                curry f ∙ g ≅ curry (f ∙ pair g iden)
@@ -88,6 +97,22 @@ record CCC : Set (a ⊔ b) where
                         ≅⟨ lawcurry1 ⟩
                         f ∎
 
+  curry-prop₄ : ∀{X Y Z Z'}{f : Hom (X × Y) Z}{g : Hom Z Z'}
+               →  map⇒ g ∙ curry f ≅ curry (g ∙ f)
+  curry-prop₄ {f = f} {g} = proof
+                            curry (g ∙ apply) ∙ curry f
+                            ≅⟨ sym idr ⟩
+                            (curry (g ∙ apply) ∙ curry f) ∙ iden
+                            ≅⟨ ass ⟩
+                            curry (g ∙ apply) ∙ (curry f ∙ iden)
+                            ≅⟨ nat-curry ⟩
+                            curry (g ∙ f ∙ pair iden iden)
+                            ≅⟨ cong (λ x → curry (g ∙ f ∙ x)) iden-pair ⟩
+                            curry (g ∙ f ∙ iden)
+                            ≅⟨ cong (λ x → curry (g ∙ x)) idr ⟩
+                            curry (g ∙ f) ∎
+
+  --Esta bien?
   nat-uncurry : ∀{X X' Y Z Z'} → {f : Hom X' X}{h : Hom Z Z'}{x : Hom X (Y ⇒ Z)}
                 →  h ∙ uncurry (x) ∙ pair f iden  ≅ uncurry (map⇒ h ∙ x ∙ f)
   nat-uncurry {f = f} {h} {x} = sym (proof
@@ -104,3 +129,33 @@ record CCC : Set (a ⊔ b) where
                                     h ∙ ((apply ∙ pair x iden) ∙ pair f iden)
                                     ≅⟨ cong (λ w → h ∙ (w ∙ pair f iden)) (sym uncurry-prop₁) ⟩
                                     h ∙ uncurry x ∙ pair f iden ∎)
+
+
+  uncurry-prop₃ : ∀{X Y Z Z'} {f : Hom X (Y ⇒ Z)} {g : Hom Z Z'}
+                  → g ∙ uncurry f ≅ uncurry (map⇒ g ∙ f)
+  uncurry-prop₃ {f = f} {g} = proof
+                              g ∙ uncurry f
+                              ≅⟨ sym idr ⟩
+                              (g ∙ uncurry f) ∙ iden
+                              ≅⟨ cong (λ x → (g ∙ uncurry f) ∙ x) (sym iden-pair) ⟩
+                              (g ∙ uncurry f) ∙ pair iden iden
+                              ≅⟨ ass ⟩
+                              g ∙ uncurry f ∙ pair iden iden
+                              ≅⟨ nat-uncurry ⟩
+                              uncurry (map⇒ g ∙ f ∙ iden)
+                              ≅⟨ cong (λ x → uncurry (map⇒ g ∙ x)) idr ⟩
+                              uncurry (map⇒ g ∙ f) ∎
+
+
+  uncurry-prop₄ : ∀{X X' Y Z} {f : Hom X (Y ⇒ Z)} {g : Hom X' X}
+                  → uncurry f ∙ pair g iden ≅ uncurry (f ∙ g)
+  uncurry-prop₄ {f = f} {g} = proof
+                                uncurry f ∙ pair g iden
+                                ≅⟨ sym idl ⟩
+                                iden ∙ uncurry f ∙ pair g iden
+                                ≅⟨ nat-uncurry ⟩
+                                uncurry (map⇒ iden ∙ f ∙ g)
+                                ≅⟨ cong (λ x → uncurry (x ∙ f ∙ g)) map⇒iden ⟩
+                                uncurry (iden ∙ f ∙ g)
+                                ≅⟨ cong (λ x → uncurry x) idl ⟩
+                                uncurry (f ∙ g) ∎  
