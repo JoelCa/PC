@@ -5,9 +5,11 @@ open import Categories.Products
 
 module Categories.Products.Properties {l m}{C : Cat {l}{m}}(p : Products C) where
 
-open import Library hiding (_×_)
+open import Library hiding (_×_ ; swap)
 open Cat C
 open Products p
+open ProductMorphisms p using (swap)
+
 
 --MODIFICADO
 π₁-pair : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₁ ∙ pair f g ≅ f ∙ π₁ {A} {B}
@@ -55,8 +57,8 @@ fusion-pair {f = f}{g}{h}{i}= law3 (proof
 
 
 swap-pair : ∀{A B C D}{f : Hom A B}{g : Hom C D} →
-            ⟨ π₂ , π₁ ⟩ ∙ pair f g ≅ pair g f ∙ ⟨ π₂ , π₁ ⟩
-swap-pair {f = f} {g}= proof ⟨ π₂ , π₁ ⟩ ∙ pair f g
+            swap ∙ pair f g ≅ pair g f ∙ swap
+swap-pair {f = f} {g}= proof swap ∙ pair f g
                        ≅⟨ fusion ⟩
                        ⟨ π₂ ∙ pair f g , π₁ ∙ pair f g ⟩
                        ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) π₂-pair π₁-pair ⟩
@@ -66,13 +68,13 @@ swap-pair {f = f} {g}= proof ⟨ π₂ , π₁ ⟩ ∙ pair f g
                        ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) (sym ass) (sym ass) ⟩
                        ⟨ (g ∙ π₁) ∙ ⟨ π₂ , π₁ ⟩ , (f ∙ π₂) ∙ ⟨ π₂ , π₁ ⟩ ⟩
                        ≅⟨ sym fusion ⟩
-                       pair g f ∙ ⟨ π₂ , π₁ ⟩ ∎
+                       pair g f ∙ swap ∎
 
-double-swap : ∀{A B} → ⟨ π₂ {B} {A} , π₁ ⟩ ∙ ⟨ π₂ {A} {B} , π₁ ⟩ ≅ iden
+double-swap : ∀{A B} → swap ∙ swap {A} {B} ≅ iden
 double-swap = proof
-              ⟨ π₂ , π₁ ⟩ ∙ ⟨ π₂ , π₁ ⟩
+              swap ∙ swap
               ≅⟨ fusion ⟩
-              ⟨ π₂ ∙ ⟨ π₂ , π₁ ⟩ , π₁ ∙ ⟨ π₂ , π₁ ⟩ ⟩
+              ⟨ π₂ ∙ swap , π₁ ∙ swap ⟩
               ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) law2 law1 ⟩
               ⟨ π₁ , π₂ ⟩
               ≅⟨ pro-iden ⟩
