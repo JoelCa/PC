@@ -16,7 +16,7 @@ module Categories.CartesianClosed.Properties {l m}{C : Cat {l}{m}}
 
 open import Library hiding (_×_ ; curry ; uncurry ; _+_)
 open Cat C
-open CCC hasProducts T hasTerminal isCCC
+open CCC isCCC --hasProducts T hasTerminal isCCC
 open Products hasProducts
 open import Categories.Products.Properties hasProducts using (comp-pair ;
                                                              iden-comp-pair;
@@ -30,6 +30,7 @@ map⇒iden = proof
            ≅⟨ lawcurry2 ⟩
            iden ∎
 
+--Caso particular de nat-curry, con h = iden.
 curry-prop₁ : ∀{X X' Y Z} → {g : Hom X' X}{f : Hom (X × Y) Z} →
              curry f ∙ g ≅ curry (f ∙ pair g iden)
 curry-prop₁ {g = g} {f} = proof curry f ∙ g
@@ -44,7 +45,7 @@ curry-prop₁ {g = g} {f} = proof curry f ∙ g
                          ≅⟨ cong (λ x → curry x) idl ⟩
                          curry (f ∙ pair g iden) ∎
 
-
+--Caso particular de nat-curry, con h = iden, x = apply.
 curry-prop₂ : ∀{X Y Z} {f : Hom X (Y ⇒ Z)} → f ≅ curry (apply ∙ pair f iden)
 curry-prop₂ {f = f} = sym (proof curry (apply ∙ pair f iden)
                           ≅⟨ sym curry-prop₁ ⟩
@@ -54,35 +55,8 @@ curry-prop₂ {f = f} = sym (proof curry (apply ∙ pair f iden)
                           ≅⟨ idl ⟩
                           f ∎)
 
-uncurry-prop₁ : ∀{X Y Z} {f : Hom X (Y ⇒ Z)} → uncurry f ≅ apply ∙ pair f iden
-uncurry-prop₁ {f = f} = proof uncurry f
-                        ≅⟨ cong (λ x → uncurry x) curry-prop₂ ⟩
-                        uncurry (curry (apply ∙ pair f iden))
-                        ≅⟨ lawcurry1 ⟩
-                        apply ∙ pair f iden ∎
 
-
-uncurry-prop₂ : ∀{X X' Y Y' Z} {f : Hom X (Y ⇒ Z)} {g : Hom X' X} {h : Hom Y' Y}
-                → uncurry f ∙ pair g h ≅ apply ∙ pair (f ∙ g) h
-uncurry-prop₂ {f = f} {g} {h} = proof
-                                uncurry f ∙ pair g h
-                                ≅⟨ cong (λ x → x ∙ pair g h) uncurry-prop₁ ⟩
-                                (apply ∙ pair f iden) ∙ pair g h
-                                ≅⟨ ass ⟩
-                                apply ∙ (pair f iden ∙ pair g h)
-                                ≅⟨ cong (λ x → apply ∙ x) (sym comp-pair) ⟩
-                                apply ∙ pair (f ∙ g) (iden ∙ h)
-                                ≅⟨ cong (λ x → apply ∙ pair (f ∙ g) x) idl ⟩
-                                apply ∙ pair (f ∙ g) h ∎
-
-
-curry-prop₃ : ∀{X Y Z} {f : Hom (X × Y) Z} →  apply ∙ pair (curry f) iden ≅ f
-curry-prop₃ {f = f} = proof apply ∙ pair (curry f) iden 
-                      ≅⟨ sym uncurry-prop₁ ⟩
-                      uncurry (curry f) 
-                      ≅⟨ lawcurry1 ⟩
-                      f ∎
-
+--Propiedad de curry con el map (caso particular de nat-curry con f = iden).
 curry-prop₄ : ∀{X Y Z Z'}{f : Hom (X × Y) Z}{g : Hom Z Z'}
              →  map⇒ g ∙ curry f ≅ curry (g ∙ f)
 curry-prop₄ {f = f} {g} = proof
@@ -98,7 +72,7 @@ curry-prop₄ {f = f} {g} = proof
                           ≅⟨ cong (λ x → curry (g ∙ x)) idr ⟩
                           curry (g ∙ f) ∎
 
---Esta bien?
+
 nat-uncurry : ∀{X X' Y Z Z'} → {f : Hom X' X}{h : Hom Z Z'}{x : Hom X (Y ⇒ Z)}
               →  h ∙ uncurry (x) ∙ pair f iden  ≅ uncurry (map⇒ h ∙ x ∙ f)
 nat-uncurry {f = f} {h} {x} = sym (proof
@@ -113,10 +87,40 @@ nat-uncurry {f = f} {h} {x} = sym (proof
                                   h ∙ (apply ∙ (pair x iden ∙ pair f iden))
                                   ≅⟨ cong (λ w → h ∙ w) (sym ass) ⟩
                                   h ∙ ((apply ∙ pair x iden) ∙ pair f iden)
-                                  ≅⟨ cong (λ w → h ∙ (w ∙ pair f iden)) (sym uncurry-prop₁) ⟩
+                                  ≅⟨ cong (λ w → h ∙ (w ∙ pair f iden)) (sym lawcurry1) ⟩
+                                  h ∙ (uncurry (curry (apply ∙ pair x iden)) ∙ pair f iden)
+                                  ≅⟨ cong (λ w → h ∙ (uncurry w ∙ pair f iden)) (sym curry-prop₂) ⟩
                                   h ∙ uncurry x ∙ pair f iden ∎)
 
 
+--Caso particular de uncurry-nat, con h = iden, x = iden.
+uncurry-prop₁ : ∀{X Y Z} {f : Hom X (Y ⇒ Z)} → uncurry f ≅ apply ∙ pair f iden
+uncurry-prop₁ {f = f} = sym (proof 
+                            apply ∙ pair f iden 
+                            ≅⟨ sym idl ⟩
+                            iden ∙ apply ∙ pair f iden 
+                            ≅⟨ nat-uncurry ⟩
+                            uncurry (map⇒ iden ∙ iden ∙ f) 
+                            ≅⟨ cong (λ x → {!uncurry (x ∙ f)!}) {!!} ⟩
+                            {!!} ≅⟨ {!!} ⟩ {!!} ≅⟨ {!!} ⟩ {!!} ∎)
+
+
+--Propiedad de uncurry con pair.
+uncurry-prop₂ : ∀{X X' Y Y' Z} {f : Hom X (Y ⇒ Z)} {g : Hom X' X} {h : Hom Y' Y}
+                → uncurry f ∙ pair g h ≅ apply ∙ pair (f ∙ g) h
+uncurry-prop₂ {f = f} {g} {h} = proof
+                                uncurry f ∙ pair g h
+                                ≅⟨ cong (λ x → x ∙ pair g h) uncurry-prop₁ ⟩
+                                (apply ∙ pair f iden) ∙ pair g h
+                                ≅⟨ ass ⟩
+                                apply ∙ (pair f iden ∙ pair g h)
+                                ≅⟨ cong (λ x → apply ∙ x) (sym comp-pair) ⟩
+                                apply ∙ pair (f ∙ g) (iden ∙ h)
+                                ≅⟨ cong (λ x → apply ∙ pair (f ∙ g) x) idl ⟩
+                                apply ∙ pair (f ∙ g) h ∎
+
+
+--Caso particular de uncurry-nat, con f = iden.
 uncurry-prop₃ : ∀{X Y Z Z'} {f : Hom X (Y ⇒ Z)} {g : Hom Z Z'}
                 → g ∙ uncurry f ≅ uncurry (map⇒ g ∙ f)
 uncurry-prop₃ {f = f} {g} = proof
@@ -132,7 +136,7 @@ uncurry-prop₃ {f = f} {g} = proof
                             ≅⟨ cong (λ x → uncurry (map⇒ g ∙ x)) idr ⟩
                             uncurry (map⇒ g ∙ f) ∎
 
-
+--Caso particular de uncurry-nat, con h = iden.
 uncurry-prop₄ : ∀{X X' Y Z} {f : Hom X (Y ⇒ Z)} {g : Hom X' X}
                 → uncurry f ∙ pair g iden ≅ uncurry (f ∙ g)
 uncurry-prop₄ {f = f} {g} = proof
@@ -145,4 +149,13 @@ uncurry-prop₄ {f = f} {g} = proof
                               uncurry (iden ∙ f ∙ g)
                               ≅⟨ cong (λ x → uncurry x) idl ⟩
                               uncurry (f ∙ g) ∎  
+
+
+--Propiedad de la defición de exponencial.
+curry-exp : ∀{X Y Z} {f : Hom (X × Y) Z} →  apply ∙ pair (curry f) iden ≅ f
+curry-exp {f = f} = proof apply ∙ pair (curry f) iden 
+                      ≅⟨ sym uncurry-prop₁ ⟩
+                      uncurry (curry f) 
+                      ≅⟨ lawcurry1 ⟩
+                      f ∎
 

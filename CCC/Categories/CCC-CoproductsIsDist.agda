@@ -24,7 +24,7 @@ open import Categories.Coproducts.Properties hasCoproducts renaming (fusion to c
 open import Categories.Products.Properties hasProducts
 open import Categories.CartesianClosed.Properties isCCC
 open Cat C
-open CCC hasProducts T hasTerminal isCCC
+open CCC isCCC --hasProducts T hasTerminal isCCC
 open Initial hasInitial
 open ProductMorphisms hasProducts using (swap)
 
