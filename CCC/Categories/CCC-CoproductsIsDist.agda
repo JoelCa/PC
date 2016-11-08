@@ -24,7 +24,7 @@ open import Categories.Coproducts.Properties hasCoproducts renaming (fusion to c
 open import Categories.Products.Properties hasProducts
 open import Categories.CartesianClosed.Properties isCCC
 open Cat C
-open CCC isCCC --hasProducts T hasTerminal isCCC
+open CCC hasProducts T hasTerminal isCCC --isCCC --hasProducts T hasTerminal isCCC
 open Initial hasInitial
 open ProductMorphisms hasProducts using (swap)
 
@@ -47,7 +47,7 @@ lema₁ {f = f} {g} {h} prop = proof
                                uncurry f ∙ (pair h iden ∙ swap)
                                ≅⟨ sym ass ⟩
                                (uncurry f ∙ pair h iden) ∙ swap
-                               ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₄ ⟩
+                               ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₃ ⟩
                                uncurry (f ∙ h) ∙ swap
                                ≅⟨ cong (λ x → uncurry x ∙ swap) prop ⟩
                                uncurry (curry (g ∙ swap)) ∙ swap
@@ -66,7 +66,7 @@ lema₂ : ∀{X Y Z Z'}{f : Hom (Y × X) Z}{g : Hom Z (Y × Z')}{h : Hom X Z'}
         → map⇒ g ∙ curry (f ∙ swap) ≅ curry swap ∙ h
 lema₂ {f = f} {g} {h} prop = proof
                                map⇒ g ∙ curry (f ∙ swap)
-                               ≅⟨ curry-prop₄ ⟩
+                               ≅⟨ curry-prop₃ ⟩
                                curry (g ∙ f ∙ swap)
                                ≅⟨ cong (λ x → curry x) (sym ass) ⟩
                                curry ((g ∙ f) ∙ swap)
@@ -78,7 +78,7 @@ lema₂ {f = f} {g} {h} prop = proof
                                curry swap ∙ h ∎
 
 
--- NO utilizo cong₂ por hace al tipe-checker más lento
+-- NO utilizo cong₂ por que hace al tipe-checker más lento
 lema₃ : ∀{X Y Z} → map⇒ (undistr {X} {Y} {Z}) ∙ h ≅ curry swap
 lema₃ = proof
           map⇒ undistr ∙ h
@@ -98,8 +98,7 @@ lema₃ = proof
           curry swap ∎
 
 
---NO esta congr
--- NO utilizo cong₂ por hace al tipe-checker más lento
+-- NO utilizo cong₂ por que hace al tipe-checker más lento
 distr-undistr : ∀{X Y Z} → distr ∙ undistr ≅ iden {X × Y + X × Z}
 distr-undistr = proof
                 distr ∙ undistr
@@ -120,7 +119,7 @@ undistr-distr = proof
                   undistr ∙ uncurry h ∙ swap
                   ≅⟨ sym ass ⟩
                   (undistr ∙ uncurry h) ∙ swap
-                  ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₃ ⟩
+                  ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₂ ⟩
                   uncurry (map⇒ undistr ∙ h) ∙ swap
                   ≅⟨ cong (λ x → uncurry x ∙ swap) lema₃ ⟩
                   uncurry (curry  swap) ∙  swap
@@ -139,7 +138,7 @@ prop-null₁ = proof
                unnull ∙ inv-unnull
                ≅⟨ sym ass ⟩
                (unnull ∙ uncurry i) ∙ swap
-               ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₃ ⟩
+               ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₂ ⟩
                uncurry (map⇒ i ∙ i) ∙ swap
                ≅⟨ cong (λ x → uncurry x ∙ swap) (sym law) ⟩
                uncurry i ∙ swap
