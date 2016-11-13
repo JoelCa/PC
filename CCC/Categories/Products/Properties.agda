@@ -58,28 +58,28 @@ fusion-pair {f = f}{g}{h}{i}= law3 (proof
 swap-pair : ∀{A B C D}{f : Hom A B}{g : Hom C D} →
             swap ∙ pair f g ≅ pair g f ∙ swap
 swap-pair {f = f} {g}= proof swap ∙ pair f g
-                       ≅⟨ fusion ⟩
-                       ⟨ π₂ ∙ pair f g , π₁ ∙ pair f g ⟩
-                       ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) π₂-pair π₁-pair ⟩
-                       ⟨ g ∙ π₂ , f ∙ π₁ ⟩
-                       ≅⟨ cong₂ (λ x y →  ⟨ g ∙ x , f ∙ y ⟩) (sym law1) (sym law2) ⟩
-                       ⟨ g ∙ (π₁ ∙ ⟨ π₂ , π₁ ⟩) , f ∙ (π₂ ∙ ⟨ π₂ , π₁ ⟩) ⟩
-                       ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) (sym ass) (sym ass) ⟩
-                       ⟨ (g ∙ π₁) ∙ ⟨ π₂ , π₁ ⟩ , (f ∙ π₂) ∙ ⟨ π₂ , π₁ ⟩ ⟩
-                       ≅⟨ sym fusion ⟩
-                       pair g f ∙ swap ∎
+                         ≅⟨ fusion ⟩
+                         ⟨ π₂ ∙ pair f g , π₁ ∙ pair f g ⟩
+                         ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) π₂-pair π₁-pair ⟩
+                         ⟨ g ∙ π₂ , f ∙ π₁ ⟩
+                         ≅⟨ cong₂ (λ x y →  ⟨ g ∙ x , f ∙ y ⟩) (sym law1) (sym law2) ⟩
+                         ⟨ g ∙ (π₁ ∙ ⟨ π₂ , π₁ ⟩) , f ∙ (π₂ ∙ ⟨ π₂ , π₁ ⟩) ⟩
+                         ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) (sym ass) (sym ass) ⟩
+                         ⟨ (g ∙ π₁) ∙ ⟨ π₂ , π₁ ⟩ , (f ∙ π₂) ∙ ⟨ π₂ , π₁ ⟩ ⟩
+                         ≅⟨ sym fusion ⟩
+                         pair g f ∙ swap ∎
 
 
 --Propiedad del doble swap.
 double-swap : ∀{A B} → swap ∙ swap {A} {B} ≅ iden
 double-swap = proof
-              swap ∙ swap
-              ≅⟨ fusion ⟩
-              ⟨ π₂ ∙ swap , π₁ ∙ swap ⟩
-              ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) law2 law1 ⟩
-              ⟨ π₁ , π₂ ⟩
-              ≅⟨ pro-iden ⟩
-              iden ∎
+                swap ∙ swap
+                ≅⟨ fusion ⟩
+                ⟨ π₂ ∙ swap , π₁ ∙ swap ⟩
+                ≅⟨ cong₂ (λ x y → ⟨ x , y ⟩) law2 law1 ⟩
+                ⟨ π₁ , π₂ ⟩
+                ≅⟨ pro-iden ⟩
+                iden ∎
 
 
 comp-pair :  ∀{A B C A' B' C'}{f : Hom B C}{g : Hom A B}{h : Hom B' C'}{i : Hom A' B'}
@@ -97,9 +97,9 @@ comp-pair {f = f}{g}{h}{i} = proof
 iden-comp-pair :  ∀{A B C D}{f : Hom B C}{g : Hom A B}
                   → pair (f ∙ g) (iden {D}) ≅ pair f iden ∙ pair g iden
 iden-comp-pair {f = f} {g} = proof
-                             pair (f ∙ g) iden
-                             ≅⟨ cong (λ x → pair (f ∙ g) x) (sym idl) ⟩
-                             pair (f ∙ g) (iden ∙ iden)
-                             ≅⟨ comp-pair ⟩
-                             pair f iden ∙ pair g iden ∎
+                               pair (f ∙ g) iden
+                               ≅⟨ cong (λ x → pair (f ∙ g) x) (sym idl) ⟩
+                               pair (f ∙ g) (iden ∙ iden)
+                               ≅⟨ comp-pair ⟩
+                               pair f iden ∙ pair g iden ∎
 

@@ -48,19 +48,19 @@ lema₁ {f = f} {g} {h} prop = proof
                                (uncurry f ∙ swap) ∙ pair iden h
                                ≅⟨ ass ⟩
                                uncurry f ∙ (swap ∙ pair iden h)
-                               ≅⟨ cong (λ x → uncurry f ∙ x) swap-pair ⟩
+                               ≅⟨ congr swap-pair ⟩
                                uncurry f ∙ (pair h iden ∙ swap)
                                ≅⟨ sym ass ⟩
                                (uncurry f ∙ pair h iden) ∙ swap
-                               ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₃ ⟩
+                               ≅⟨ congl uncurry-prop₃ ⟩
                                uncurry (f ∙ h) ∙ swap
                                ≅⟨ cong (λ x → uncurry x ∙ swap) prop ⟩
                                uncurry (curry (g ∙ swap)) ∙ swap
-                               ≅⟨ cong (λ x → x ∙ swap) lawcurry1 ⟩
+                               ≅⟨ congl lawcurry1 ⟩
                                (g ∙ swap) ∙ swap
                                ≅⟨ ass ⟩
                                g ∙ (swap ∙ swap)
-                               ≅⟨ cong (λ x → g ∙ x) double-swap ⟩
+                               ≅⟨ congr double-swap ⟩
                                g ∙ iden
                                ≅⟨ idr ⟩
                                g ∎
@@ -98,7 +98,7 @@ lema₃ = proof
           [ curry swap ∙ inl , curry swap ∙ inr ]
           ≅⟨ sym co-fusion ⟩
           curry swap ∙ [ inl , inr ]
-          ≅⟨ cong (λ x → curry swap ∙ x) copro-iden ⟩
+          ≅⟨ congr copro-iden ⟩
           curry swap ∙ iden
           ≅⟨ idr ⟩
           curry swap ∎
@@ -126,11 +126,11 @@ undistr-distr = proof
                   undistr ∙ uncurry h ∙ swap
                   ≅⟨ sym ass ⟩
                   (undistr ∙ uncurry h) ∙ swap
-                  ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₂ ⟩
+                  ≅⟨ congl uncurry-prop₂ ⟩
                   uncurry (map⇒ undistr ∙ h) ∙ swap
                   ≅⟨ cong (λ x → uncurry x ∙ swap) lema₃ ⟩
                   uncurry (curry  swap) ∙  swap
-                  ≅⟨ cong (λ x → x ∙  swap) lawcurry1 ⟩
+                  ≅⟨ congl lawcurry1 ⟩
                   swap ∙ swap
                   ≅⟨ double-swap ⟩
                   iden ∎
@@ -147,13 +147,13 @@ prop-null₁ = proof
                unnull ∙ inv-unnull
                ≅⟨ sym ass ⟩
                (unnull ∙ uncurry i) ∙ swap
-               ≅⟨ cong (λ x → x ∙ swap) uncurry-prop₂ ⟩
+               ≅⟨ congl uncurry-prop₂ ⟩
                uncurry (map⇒ i ∙ i) ∙ swap
                ≅⟨ cong (λ x → uncurry x ∙ swap) (sym law) ⟩
                uncurry i ∙ swap
                ≅⟨ cong (λ x → uncurry x ∙ swap) law ⟩
                uncurry (curry swap) ∙ swap
-               ≅⟨ cong (λ x → x ∙ swap) lawcurry1 ⟩
+               ≅⟨ congl lawcurry1 ⟩
                swap ∙ swap
                ≅⟨ double-swap ⟩
                iden ∎
