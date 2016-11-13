@@ -9,17 +9,17 @@ open import Library hiding (_+_)
 open Cat C
 open Coproducts c
 
---MODIFICADO
+
 inl-cop : ∀{A B C D}{f : Hom C A}{g : Hom D B} → copair f g ∙ inl ≅ inl {A} {B} ∙ f
 inl-cop = law1
 
---MODIFICADO
 inr-cop : ∀{A B C D}{f : Hom C A}{g : Hom D B} → copair f g ∙ inr ≅ inr {A} {B} ∙ g
 inr-cop = law2
 
 iden-cop : ∀{A B} →  copair (iden {A}) (iden {B}) ≅ iden {A + B}
 iden-cop = sym (law3 (trans idl (sym idr)) (trans idl (sym idr)))
 
+--Prop. de inl y inr, con iden.
 copro-iden : ∀{A B} → [ inl {A} {B} , inr ] ≅ iden
 copro-iden = sym (law3 idl idl)
 

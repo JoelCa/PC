@@ -4,8 +4,8 @@ open import Categories.Products
 open import Categories.Terminal
 
 module Categories.CartesianClosed {a}{b}{C : Cat {a}{b}}
+                                        {T : Cat.Obj C}
                                         (hasProducts : Products C)
-                                        (T : Cat.Obj C)
                                         (hasTerminal : Terminal C T)
                                         where
 

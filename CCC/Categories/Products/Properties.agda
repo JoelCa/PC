@@ -11,18 +11,16 @@ open Products p
 open ProductMorphisms p using (swap)
 
 
---MODIFICADO
 π₁-pair : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₁ ∙ pair f g ≅ f ∙ π₁ {A} {B}
 π₁-pair = law1
 
---MODIFICADO
 π₂-pair : ∀{A B C D}{f : Hom A C}{g : Hom B D} → π₂ ∙ pair f g  ≅ g ∙ π₂ {A} {B}
 π₂-pair = law2
-
 
 iden-pair : ∀{A B} →  pair (iden {A}) (iden {B}) ≅ iden {A × B}
 iden-pair = sym (law3 (trans idr (sym idl)) (trans idr (sym idl)))
 
+--Prop. de π₁ y π₂, con iden.
 pro-iden : ∀{A B} → ⟨ π₁{A} {B} , π₂ ⟩ ≅ iden
 pro-iden = sym (law3 idr idr)
 
@@ -56,6 +54,7 @@ fusion-pair {f = f}{g}{h}{i}= law3 (proof
                 ∎)
 
 
+--Prop. de swap con pair.
 swap-pair : ∀{A B C D}{f : Hom A B}{g : Hom C D} →
             swap ∙ pair f g ≅ pair g f ∙ swap
 swap-pair {f = f} {g}= proof swap ∙ pair f g
@@ -70,6 +69,8 @@ swap-pair {f = f} {g}= proof swap ∙ pair f g
                        ≅⟨ sym fusion ⟩
                        pair g f ∙ swap ∎
 
+
+--Propiedad del doble swap.
 double-swap : ∀{A B} → swap ∙ swap {A} {B} ≅ iden
 double-swap = proof
               swap ∙ swap
@@ -91,6 +92,8 @@ comp-pair {f = f}{g}{h}{i} = proof
                  pair f h ∙ pair g i
                ∎
 
+
+--Prop. de pair con iden. Caso particular de comp-pair, con h = i = iden.
 iden-comp-pair :  ∀{A B C D}{f : Hom B C}{g : Hom A B}
                   → pair (f ∙ g) (iden {D}) ≅ pair f iden ∙ pair g iden
 iden-comp-pair {f = f} {g} = proof
