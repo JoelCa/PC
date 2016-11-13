@@ -30,12 +30,12 @@ open Initial hasInitial
 open ProductMorphisms hasProducts using (swap)
 
 
---Homomorfismo utilizado para definir "distr".
+--Morfismo utilizado para definir "distr".
 h : ∀{X Y Z} → Hom (Y + Z) (X ⇒ (X × Y + X × Z))
 h = [ curry (inl ∙ swap) , curry (inr ∙ swap) ]
 
 
---Homomorfismo "inverso" de "undistr".
+--Morfismo "inverso" de "undistr".
 distr : ∀{X Y Z} → Hom (X × (Y + Z)) (X × Y + X × Z)
 distr = uncurry h ∙ swap
 
@@ -136,7 +136,7 @@ undistr-distr = proof
                   iden ∎
 
 
---Homomorfismo "inverso" de "unnull".
+--Morfismo "inverso" de "unnull".
 inv-unnull : ∀{X} → Hom (X × I) I
 inv-unnull = uncurry i ∙ swap
 
