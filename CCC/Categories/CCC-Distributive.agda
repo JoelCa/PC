@@ -12,7 +12,7 @@ module Categories.CCC-Distributive {a}{b}{C : Cat {a}{b}}
                                    {hasTerminal : Terminal C T}
                                    (hasCoproducts : Coproducts C)           
                                    (hasInitial : Initial C I)
-                                   (isCCC : CCC hasProducts hasTerminal)
+                                   (isCCC : CCC hasProducts T hasTerminal)
                                    where
 
 open import Library hiding (_×_ ; _+_ ; curry ; uncurry ; swap)
@@ -25,7 +25,7 @@ open import Categories.CartesianClosed.Properties isCCC
 open Products hasProducts
 open Coproducts hasCoproducts renaming (law1 to co-law1 ; law2 to co-law2) 
 open Cat C
-open CCC hasProducts hasTerminal isCCC --isCCC --hasProducts hasTerminal isCCC
+open CCC hasProducts T hasTerminal isCCC --isCCC --hasProducts hasTerminal isCCC
 open Initial hasInitial
 open ProductMorphisms hasProducts using (swap)
 

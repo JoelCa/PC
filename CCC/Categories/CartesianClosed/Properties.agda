@@ -10,12 +10,12 @@ module Categories.CartesianClosed.Properties {l m}{C : Cat {l}{m}}
                                              {T : Cat.Obj C}
                                              {hasProducts : Products C}
                                              {hasTerminal : Terminal C T}
-                                             (isCCC : CCC hasProducts hasTerminal)
+                                             (isCCC : CCC hasProducts T hasTerminal)
                                              where
 
 open import Library hiding (_×_ ; curry ; uncurry ; _+_)
 open Cat C
-open CCC hasProducts hasTerminal isCCC --isCCC --hasProducts hasTerminal isCCC
+open CCC hasProducts T hasTerminal isCCC --isCCC --hasProducts hasTerminal isCCC
 open Products hasProducts
 open import Categories.Products.Properties hasProducts using (comp-pair ;
                                                              iden-comp-pair;

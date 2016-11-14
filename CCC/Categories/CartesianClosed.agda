@@ -4,19 +4,16 @@ open import Categories.Products
 open import Categories.Terminal
 
 module Categories.CartesianClosed {a}{b}{C : Cat {a}{b}}
-                                        {T : Cat.Obj C}
                                         (hasProducts : Products C)
+                                        (T : Cat.Obj C)
                                         (hasTerminal : Terminal C T)
                                         where
 
-open import Library hiding (_×_ ; curry ; uncurry ; _+_)
+open import Library hiding (_×_;curry;uncurry;_+_)
 
 open Cat C
+open import Categories.Products
 open Products hasProducts
-open import Categories.Products.Properties hasProducts using (comp-pair ;
-                                                             iden-comp-pair;
-                                                             iden-pair)
-
 
 record CCC : Set (a ⊔ b) where
   infix 4 _⇒_
