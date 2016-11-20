@@ -249,10 +249,6 @@ module Listas (A : Set) where
   Definir la función length para listas
 -}
 
-  lengthList : List A → ℕ
-  lengthList [] = 0
-  lengthList (x ∷ xs) = suc (lengthList xs)
-
   length : μF → ℕ
-  length = lengthList ∘ (fold {List A} ([_,_] (λ x → []) (λ { (c , xs) → c ∷ xs })))
+  length = fold {ℕ} ([_,_] (λ x → 0) (λ { (_ , n) → suc n }))
 
