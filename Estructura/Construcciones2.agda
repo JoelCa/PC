@@ -18,23 +18,23 @@ module SetsStructure {l : Level} where
  open import Categories.Sets
 
  {- Probar que la categoría Sets tiene objeto inicial y coproductos -}
- ZeroSet : Initial Sets ⊥
- ZeroSet = init ⊥-elim (λ { {x} {f} → ext (λ a → ⊥-elim a) })
+ ZeroSetI : Initial Sets ⊥
+ ZeroSetI = init ⊥-elim (λ { {x} {f} → ext (λ a → ⊥-elim a) })
 
 
 
- data _⊎_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
-  inj₁ : (x : A) → A ⊎ B
-  inj₂ : (y : B) → A ⊎ B
+ data _⊎₂_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
+  inj₁ : (x : A) → A ⊎₂ B
+  inj₂ : (y : B) → A ⊎₂ B
 
- [_,_] : ∀ {a b c} {A : Set a} {B : Set b} {C : A ⊎ B → Set c} →
+ [_,_] : ∀ {a b c} {A : Set a} {B : Set b} {C : A ⊎₂ B → Set c} →
          ((x : A) → C (inj₁ x)) → ((x : B) → C (inj₂ x)) →
-         ((x : A ⊎ B) → C x)
+         ((x : A ⊎₂ B) → C x)
  [ f , g ] (inj₁ x) = f x
  [ f , g ] (inj₂ y) = g y
 
- SetsHasCoproducts : ∀{l} → Coproducts (Sets {l})
- SetsHasCoproducts = coproduct (λ x y → x ⊎ y)
+ SetsHasCoproductsI : ∀{l} → Coproducts (Sets {l})
+ SetsHasCoproductsI = coproduct (λ x y → x ⊎₂ y)
                                inj₁
                                inj₂
                                (λ f g x →  [ f , g ] x)

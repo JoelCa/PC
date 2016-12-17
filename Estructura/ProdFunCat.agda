@@ -18,23 +18,23 @@ module ProdFunCat where
     let open Products p
         open Cat C renaming (_∙_ to _∙C_ ; iden to idenC) hiding (ass)
         open Cat D renaming (_∙_ to _∙D_ ; iden to idenD)
-        open ProductMorphisms p using (pair ; idpair)
+        open ProductMorphismsI p using (pairI ; idpair)
     in functor (λ x → OMap F x × OMap G x)
-               (λ f → pair (HMap F f) (HMap G f))
-               (λ {_} → proof pair (HMap F idenC) (HMap G idenC)
-                              ≅⟨ cong₂ (λ x y → pair x y) (fid F) (fid G) ⟩ 
-                              pair idenD idenD 
+               (λ f → pairI (HMap F f) (HMap G f))
+               (λ {_} → proof pairI (HMap F idenC) (HMap G idenC)
+                              ≅⟨ cong₂ (λ x y → pairI x y) (fid F) (fid G) ⟩ 
+                              pairI idenD idenD 
                               ≅⟨ idpair ⟩ 
                               idenD ∎)
                (λ {_} {_} {_} {g} {f} →
                   sym (law3 (proof
-                            π₁ ∙D (pair (HMap F g) (HMap G g) ∙D pair (HMap F f) (HMap G f))
+                            π₁ ∙D (pairI (HMap F g) (HMap G g) ∙D pairI (HMap F f) (HMap G f))
                             ≅⟨ sym ass ⟩
-                            (π₁ ∙D pair (HMap F g) (HMap G g)) ∙D pair (HMap F f) (HMap G f)
-                            ≅⟨ cong (λ x → x ∙D pair (HMap F f) (HMap G f)) law1 ⟩
-                            (HMap F g ∙D π₁) ∙D pair (HMap F f) (HMap G f)
+                            (π₁ ∙D pairI (HMap F g) (HMap G g)) ∙D pairI (HMap F f) (HMap G f)
+                            ≅⟨ cong (λ x → x ∙D pairI (HMap F f) (HMap G f)) law1 ⟩
+                            (HMap F g ∙D π₁) ∙D pairI (HMap F f) (HMap G f)
                             ≅⟨ ass ⟩
-                            HMap F g ∙D (π₁ ∙D pair (HMap F f) (HMap G f))
+                            HMap F g ∙D (π₁ ∙D pairI (HMap F f) (HMap G f))
                             ≅⟨ cong (λ x → HMap F g ∙D x) law1 ⟩
                             HMap F g ∙D (HMap F f ∙D π₁)
                             ≅⟨ sym ass ⟩
@@ -42,13 +42,13 @@ module ProdFunCat where
                             ≅⟨ cong (λ x → x ∙D π₁) (sym (fcomp F)) ⟩
                             HMap F (g ∙C f) ∙D π₁ ∎)
                             (proof
-                              π₂ ∙D (pair (HMap F g) (HMap G g) ∙D pair (HMap F f) (HMap G f))
+                              π₂ ∙D (pairI (HMap F g) (HMap G g) ∙D pairI (HMap F f) (HMap G f))
                               ≅⟨ sym ass ⟩
-                              (π₂ ∙D pair (HMap F g) (HMap G g)) ∙D pair (HMap F f) (HMap G f)
-                              ≅⟨ cong (λ x → x ∙D pair (HMap F f) (HMap G f)) law2 ⟩
-                              (HMap G g ∙D π₂) ∙D pair (HMap F f) (HMap G f)
+                              (π₂ ∙D pairI (HMap F g) (HMap G g)) ∙D pairI (HMap F f) (HMap G f)
+                              ≅⟨ cong (λ x → x ∙D pairI (HMap F f) (HMap G f)) law2 ⟩
+                              (HMap G g ∙D π₂) ∙D pairI (HMap F f) (HMap G f)
                               ≅⟨ ass ⟩
-                              HMap G g ∙D (π₂ ∙D pair (HMap F f) (HMap G f))
+                              HMap G g ∙D (π₂ ∙D pairI (HMap F f) (HMap G f))
                               ≅⟨ cong (λ x → HMap G g ∙D x) law2 ⟩
                               HMap G g ∙D (HMap G f ∙D π₂)
                               ≅⟨ sym ass ⟩
@@ -62,7 +62,7 @@ module ProdFunCat where
            Products D → Products (FunctorCat C D)
   funPro {C = C} {D} p =
     let open Products p
-        open ProductMorphisms p using (pair ; idpair ; pairLema)
+        open ProductMorphismsI p using (idpair ; pairLema)
         open Cat C renaming (_∙_ to _∙C_ ; iden to idenC) hiding (ass)
         open Cat D renaming (_∙_ to _∙D_ ; iden to idenD)
         _**_ = _**_ p

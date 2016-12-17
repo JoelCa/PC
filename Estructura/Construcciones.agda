@@ -39,8 +39,8 @@ module SetStructure {l : Level} where
 {- Ejercicios
    -- Probar que Sets tiene objeto terminal y productos
 -}
- SetsHasProducts : Products (Sets {l}) 
- SetsHasProducts = prod
+ SetsHasProductsI : Products (Sets {l}) 
+ SetsHasProductsI = prod
                    Library._×_ 
                    fst 
                    snd 
@@ -59,8 +59,8 @@ module SetStructure {l : Level} where
 
  open import Data.Unit.Base
  
- OneSet : Terminal Sets ⊤
- OneSet = term (λ x → ⊤.tt) refl
+ OneSetI : Terminal Sets ⊤
+ OneSetI = term (λ x → ⊤.tt) refl
 
 {- Ejercicio EXTRA: Analizar si la categoría de pointed sets
    tiene producto y objeto terminal, en cuyo caso definirlo
@@ -68,15 +68,15 @@ module SetStructure {l : Level} where
 
 
 {- Dos productos de los mismos objetos son isomorfos -}
-module ProductIso {a}{b}(C : Cat {a}{b}) where
+module ProductIsoI {a}{b}(C : Cat {a}{b}) where
 
   open Cat C
 
   open Products
 
-  ProductIso : ∀{A B} → (p q : Products C)
+  ProductIsoI : ∀{A B} → (p q : Products C)
            → Iso C (⟨_,_⟩ p {A} {B} (π₁ q) (π₂ q))
-  ProductIso {A} {B} p q = iso
+  ProductIsoI {A} {B} p q = iso
                    (⟨_,_⟩ q (π₁ p) (π₂ p)) 
                    (sym (proof
                      iden {_×_ p A B }
@@ -124,7 +124,7 @@ module ProductIso {a}{b}(C : Cat {a}{b}) where
                      (⟨_,_⟩ q (π₁ p) (π₂ p)) ∙ (⟨_,_⟩ p (π₁ q) (π₂ q)) ∎))
 
 
-module ProductMorphisms {a}{b}{C : Cat {a}{b}}(p : Products C) where
+module ProductMorphismsI {a}{b}{C : Cat {a}{b}}(p : Products C) where
 
   open Cat C
   open Products p
@@ -301,9 +301,9 @@ module ProductMorphisms {a}{b}{C : Cat {a}{b}}(p : Products C) where
 
 
   {- Definir el morfismo pair -}
-  pair : ∀{A B C D}(f : Hom A B)(g : Hom C D)
+  pairI : ∀{A B C D}(f : Hom A B)(g : Hom C D)
        → Hom (A × C) (B × D)
-  pair f g = ⟨ f ∙ π₁ , g ∙ π₂ ⟩
+  pairI f g = ⟨ f ∙ π₁ , g ∙ π₂ ⟩
 
   --AGREGADO por mi
   pairLema : ∀{A B C D E}{f : Hom A B}{g : Hom C D}{h : Hom E A}{i : Hom E C}
